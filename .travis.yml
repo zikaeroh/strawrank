@@ -1,0 +1,18 @@
+language: go
+
+go:
+  - "1.x"
+  # - "tip"
+
+os:
+  - linux
+  - osx
+  - windows
+
+before_install:
+  - go get -v -u github.com/mattn/goveralls
+script:
+  - $GOPATH/bin/goveralls -service=travis-ci -race -covermode=atomic -parallel
+
+notifications:
+  webhooks: https://coveralls.io/webhook
