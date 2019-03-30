@@ -7,11 +7,15 @@ import (
 	"github.com/zikaeroh/strawrank/internal/polling/fptp"
 )
 
+// Tally tallies ballots using an instant-runoff voting system. If there is
+// a tie, then nobody is declared a winner.
 func Tally(ballots []polling.Ballot) polling.Result {
 	r, _ := TallyWithRounds(ballots)
 	return r
 }
 
+// Tally tallies ballots the same way as Tally, but also shows the intermediate
+// rounds leading to the final result.
 func TallyWithRounds(ballots []polling.Ballot) (polling.Result, []polling.Result) {
 	if len(ballots) == 0 {
 		return polling.Result{}, nil

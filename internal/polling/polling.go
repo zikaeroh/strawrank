@@ -30,6 +30,7 @@ func (b Ballot) Without(id int) Ballot {
 	return Ballot{Votes: votes}
 }
 
+// Result holds the details of a tally result.
 type Result struct {
 	// Winners is a list of winning candidates. More than one implies a tie.
 	Winners []Candidate
@@ -41,6 +42,7 @@ type Result struct {
 	Total int
 }
 
+// Candidate is a polling candidate for the tally result.
 type Candidate struct {
 	// ID is a unique number identifying a candidate.
 	ID int
