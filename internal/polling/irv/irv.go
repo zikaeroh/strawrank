@@ -14,8 +14,8 @@ func Tally(ballots []polling.Ballot) polling.Result {
 	return r
 }
 
-// Tally tallies ballots the same way as Tally, but also shows the intermediate
-// rounds leading to the final result.
+// TallyWithRounds tallies ballots the same way as Tally, but also shows the
+// intermediate rounds leading to the final result.
 func TallyWithRounds(ballots []polling.Ballot) (polling.Result, []polling.Result) {
 	if len(ballots) == 0 {
 		return polling.Result{}, nil
