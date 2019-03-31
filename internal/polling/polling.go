@@ -5,7 +5,7 @@ package polling
 type Ballot struct {
 	// Votes is an ordered list of candidate IDs, from most preferable to
 	// least preferable.
-	Votes []int
+	Votes []int `json:"votes"`
 }
 
 // NewBallot creates a new Ballot from a list of candidate IDs. It is shorthand
@@ -33,20 +33,20 @@ func (b Ballot) Without(id int) Ballot {
 // Result holds the details of a tally result.
 type Result struct {
 	// Winners is a list of winning candidates. More than one implies a tie.
-	Winners []Candidate
+	Winners []Candidate `json:"winners"`
 
 	// Ranking ranks all candidates from most popular to least popular.
-	Ranking []Candidate
+	Ranking []Candidate `json:"ranking"`
 
 	// Total counts the total number of votes used in this result.
-	Total int
+	Total int `json:"total"`
 }
 
 // Candidate is a polling candidate for the tally result.
 type Candidate struct {
 	// ID is a unique number identifying a candidate.
-	ID int
+	ID int `json:"id"`
 
 	// Count is the number of votes a candidate has.
-	Count int
+	Count int `json:"count"`
 }
