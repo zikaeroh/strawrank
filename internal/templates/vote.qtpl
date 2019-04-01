@@ -1,6 +1,7 @@
 {% code
 type VotePage struct {
     BasePage
+    CSRF string
     Name string
     Choices []string
 }
@@ -23,17 +24,19 @@ type VotePage struct {
 {% func (p *VotePage) PageBody() %}
     <div>
         <h1 style="text-align: center; padding: 3rem 1.5rem;">{%s p.Name %}</h1>
+
+        <p>To vote, drag your choices from the left to the right. Order by preference.</p>
     </div>
 
-    <hr/>
+    <br/>
 
     <div class="row">
         <div class="col">
             <h4 style="text-align: center">Available choices</h4>
             <br/>
             <div id="vote-unchosen" class="vote-list list-group">
-                {% for _, choice := range p.Choices %}
-                <div class="list-group-item">{%s choice %}</div>
+                {% for i, choice := range p.Choices %}
+                <div class="list-group-item" data-index="{%d i %}">{%s choice %}</div>
                 {% endfor %}
             </div>
         </div>
@@ -42,6 +45,14 @@ type VotePage struct {
             <h4 style="text-align: center">Your choices</h4>
             <br/>
             <div id="vote-chosen" class="vote-list list-group"></div>
+
+            <br>
+
+            <form class="float-right" id="vote-form" method="POST">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <input type="hidden" id="votes" name="votes" value="" />
+                {%s= p.CSRF %}
+            </form>
         </div>
     </div>
 {% endfunc %}
@@ -50,24 +61,36 @@ type VotePage struct {
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <script>
-        var unchosen = document.getElementById('vote-unchosen');
-        var chosen = document.getElementById('vote-chosen');
-
-        new Sortable(unchosen, {
-            group: 'shared',
+        new Sortable($("#vote-unchosen")[0], {
+            group: 'votes',
             animation: 150,
             onChange: function(evt) {
                 console.log(evt);
             }
         });
 
-        new Sortable(chosen, {
-            group: 'shared',
-            // chosenClass: 'active',
+        new Sortable($("#vote-chosen")[0], {
+            group: 'votes',
             animation: 150,
             onChange: function(evt) {
-                console.log(evt);
+                // console.log(evt);
             }
         });
+
+        $(document).ready(function() {
+            $("#vote-form").submit(function() {
+                var votes = [];
+
+                $("#vote-chosen > div.list-group-item").each(function(i, e) {
+                    var index = Number(e.dataset.index);
+                    if (index !== NaN) {
+                        votes.push(index);
+                    }
+                });
+
+                $("#votes").val(JSON.stringify(votes));
+                return true;
+            })
+        })
     </script>
 {% endfunc %}

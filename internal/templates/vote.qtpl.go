@@ -20,52 +20,53 @@ var (
 // line vote.qtpl:2
 type VotePage struct {
 	BasePage
+	CSRF    string
 	Name    string
 	Choices []string
 }
 
-// line vote.qtpl:9
+// line vote.qtpl:10
 func (p *VotePage) StreamPageTitle(qw422016 *qt422016.Writer) {
-	// line vote.qtpl:9
+	// line vote.qtpl:10
 	qw422016.N().S(`
 	StrawRank - `)
-	// line vote.qtpl:10
+	// line vote.qtpl:11
 	qw422016.E().S(p.Name)
-	// line vote.qtpl:10
+	// line vote.qtpl:11
 	qw422016.N().S(`
 `)
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 }
 
-// line vote.qtpl:11
+// line vote.qtpl:12
 func (p *VotePage) WritePageTitle(qq422016 qtio422016.Writer) {
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 	p.StreamPageTitle(qw422016)
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 	qt422016.ReleaseWriter(qw422016)
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 }
 
-// line vote.qtpl:11
+// line vote.qtpl:12
 func (p *VotePage) PageTitle() string {
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 	p.WritePageTitle(qb422016)
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 	qs422016 := string(qb422016.B)
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 	return qs422016
-	// line vote.qtpl:11
+	// line vote.qtpl:12
 }
 
-// line vote.qtpl:13
+// line vote.qtpl:14
 func (p *VotePage) StreamPageMeta(qw422016 *qt422016.Writer) {
-	// line vote.qtpl:13
+	// line vote.qtpl:14
 	qw422016.N().S(`
 	<style>
         .vote-list:empty::after {
@@ -75,48 +76,50 @@ func (p *VotePage) StreamPageMeta(qw422016 *qt422016.Writer) {
         }
     </style>
 `)
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 }
 
-// line vote.qtpl:21
+// line vote.qtpl:22
 func (p *VotePage) WritePageMeta(qq422016 qtio422016.Writer) {
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 	p.StreamPageMeta(qw422016)
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 	qt422016.ReleaseWriter(qw422016)
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 }
 
-// line vote.qtpl:21
+// line vote.qtpl:22
 func (p *VotePage) PageMeta() string {
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 	p.WritePageMeta(qb422016)
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 	qs422016 := string(qb422016.B)
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 	return qs422016
-	// line vote.qtpl:21
+	// line vote.qtpl:22
 }
 
-// line vote.qtpl:23
+// line vote.qtpl:24
 func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
-	// line vote.qtpl:23
+	// line vote.qtpl:24
 	qw422016.N().S(`
     <div>
         <h1 style="text-align: center; padding: 3rem 1.5rem;">`)
-	// line vote.qtpl:25
+	// line vote.qtpl:26
 	qw422016.E().S(p.Name)
-	// line vote.qtpl:25
+	// line vote.qtpl:26
 	qw422016.N().S(`</h1>
+
+        <p>To vote, drag your choices from the left to the right. Order by preference.</p>
     </div>
 
-    <hr/>
+    <br/>
 
     <div class="row">
         <div class="col">
@@ -124,19 +127,23 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
             <br/>
             <div id="vote-unchosen" class="vote-list list-group">
                 `)
-	// line vote.qtpl:35
-	for _, choice := range p.Choices {
-		// line vote.qtpl:35
+	// line vote.qtpl:38
+	for i, choice := range p.Choices {
+		// line vote.qtpl:38
 		qw422016.N().S(`
-                <div class="list-group-item">`)
-		// line vote.qtpl:36
+                <div class="list-group-item" data-index="`)
+		// line vote.qtpl:39
+		qw422016.N().D(i)
+		// line vote.qtpl:39
+		qw422016.N().S(`">`)
+		// line vote.qtpl:39
 		qw422016.E().S(choice)
-		// line vote.qtpl:36
+		// line vote.qtpl:39
 		qw422016.N().S(`</div>
                 `)
-		// line vote.qtpl:37
+		// line vote.qtpl:40
 	}
-	// line vote.qtpl:37
+	// line vote.qtpl:40
 	qw422016.N().S(`
             </div>
         </div>
@@ -145,91 +152,115 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
             <h4 style="text-align: center">Your choices</h4>
             <br/>
             <div id="vote-chosen" class="vote-list list-group"></div>
+
+            <br>
+
+            <form class="float-right" id="vote-form" method="POST">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <input type="hidden" id="votes" name="votes" value="" />
+                `)
+	// line vote.qtpl:54
+	qw422016.N().S(p.CSRF)
+	// line vote.qtpl:54
+	qw422016.N().S(`
+            </form>
         </div>
     </div>
 `)
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 }
 
-// line vote.qtpl:47
+// line vote.qtpl:58
 func (p *VotePage) WritePageBody(qq422016 qtio422016.Writer) {
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 	p.StreamPageBody(qw422016)
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 	qt422016.ReleaseWriter(qw422016)
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 }
 
-// line vote.qtpl:47
+// line vote.qtpl:58
 func (p *VotePage) PageBody() string {
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 	p.WritePageBody(qb422016)
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 	qs422016 := string(qb422016.B)
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 	return qs422016
-	// line vote.qtpl:47
+	// line vote.qtpl:58
 }
 
-// line vote.qtpl:49
+// line vote.qtpl:60
 func (p *VotePage) StreamPageScripts(qw422016 *qt422016.Writer) {
-	// line vote.qtpl:49
+	// line vote.qtpl:60
 	qw422016.N().S(`
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <script>
-        var unchosen = document.getElementById('vote-unchosen');
-        var chosen = document.getElementById('vote-chosen');
-
-        new Sortable(unchosen, {
-            group: 'shared',
+        new Sortable($("#vote-unchosen")[0], {
+            group: 'votes',
             animation: 150,
             onChange: function(evt) {
                 console.log(evt);
             }
         });
 
-        new Sortable(chosen, {
-            group: 'shared',
-            // chosenClass: 'active',
+        new Sortable($("#vote-chosen")[0], {
+            group: 'votes',
             animation: 150,
             onChange: function(evt) {
-                console.log(evt);
+                // console.log(evt);
             }
         });
+
+        $(document).ready(function() {
+            $("#vote-form").submit(function() {
+                var votes = [];
+
+                $("#vote-chosen > div.list-group-item").each(function(i, e) {
+                    var index = Number(e.dataset.index);
+                    if (index !== NaN) {
+                        votes.push(index);
+                    }
+                });
+
+                $("#votes").val(JSON.stringify(votes));
+                return true;
+            })
+        })
     </script>
 `)
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 }
 
-// line vote.qtpl:73
+// line vote.qtpl:96
 func (p *VotePage) WritePageScripts(qq422016 qtio422016.Writer) {
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 	p.StreamPageScripts(qw422016)
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 	qt422016.ReleaseWriter(qw422016)
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 }
 
-// line vote.qtpl:73
+// line vote.qtpl:96
 func (p *VotePage) PageScripts() string {
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 	p.WritePageScripts(qb422016)
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 	qs422016 := string(qb422016.B)
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 	return qs422016
-	// line vote.qtpl:73
+	// line vote.qtpl:96
 }

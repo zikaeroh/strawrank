@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/zikaeroh/strawrank/internal/templates"
-
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
+	"github.com/zikaeroh/strawrank/internal/templates"
 )
 
 func main() {
@@ -29,14 +30,25 @@ func main() {
 	})
 
 	r.Use(requestLogger)
+	r.Use(recoverer)
+
+	r.Use(csrf.Protect([]byte("a-32-byte-long-key-goes-here"),
+		csrf.Secure(false), // TODO: debug flag
+	))
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hi"))
 	})
 
 	r.Route("/{id}", func(r chi.Router) {
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodPost {
+				r.ParseForm()
+				spew.Dump(r.Form)
+			}
+
 			templates.WritePageTemplate(w, &templates.VotePage{
+				CSRF: string(csrf.TemplateField(r)),
 				Name: "What should we do today?",
 				Choices: []string{
 					"A",
@@ -44,7 +56,10 @@ func main() {
 					"C",
 				},
 			})
-		})
+		}
+
+		r.Get("/", fn)
+		r.Post("/", fn)
 
 		r.Get("/r", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("ok"))
@@ -86,10 +101,11 @@ func recoverer(next http.Handler) http.Handler {
 			if rvr := recover(); rvr != nil {
 				logger := zerolog.Ctx(r.Context())
 
-				logger.Info().
+				logger.Error().
 					Stack().
 					Err(errors.New("panic")).
-					Interface("panic_value", rvr)
+					Interface("panic_value", rvr).
+					Msg("panic")
 
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
