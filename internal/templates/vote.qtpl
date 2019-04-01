@@ -1,0 +1,73 @@
+{% code
+type VotePage struct {
+    BasePage
+    Name string
+    Choices []string
+}
+%}
+
+{% func (p *VotePage) PageTitle() %}
+	StrawRank - {%s p.Name %}
+{% endfunc %}
+
+{% func (p *VotePage) PageMeta() %}
+	<style>
+        .vote-list:empty::after {
+            content: "Drag here";
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+{% endfunc %}
+
+{% func (p *VotePage) PageBody() %}
+    <div>
+        <h1 style="text-align: center; padding: 3rem 1.5rem;">{%s p.Name %}</h1>
+    </div>
+
+    <hr/>
+
+    <div class="row">
+        <div class="col">
+            <h4 style="text-align: center">Available choices</h4>
+            <br/>
+            <div id="vote-unchosen" class="vote-list list-group">
+                {% for _, choice := range p.Choices %}
+                <div class="list-group-item">{%s choice %}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col">
+            <h4 style="text-align: center">Your choices</h4>
+            <br/>
+            <div id="vote-chosen" class="vote-list list-group"></div>
+        </div>
+    </div>
+{% endfunc %}
+
+{% func (p *VotePage) PageScripts() %}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <script>
+        var unchosen = document.getElementById('vote-unchosen');
+        var chosen = document.getElementById('vote-chosen');
+
+        new Sortable(unchosen, {
+            group: 'shared',
+            animation: 150,
+            onChange: function(evt) {
+                console.log(evt);
+            }
+        });
+
+        new Sortable(chosen, {
+            group: 'shared',
+            // chosenClass: 'active',
+            animation: 150,
+            onChange: function(evt) {
+                console.log(evt);
+            }
+        });
+    </script>
+{% endfunc %}

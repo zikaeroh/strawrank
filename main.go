@@ -1,8 +1,11 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"time"
+
+	"github.com/zikaeroh/strawrank/internal/templates"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -28,9 +31,29 @@ func main() {
 	r.Use(requestLogger)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome"))
+		w.Write([]byte("hi"))
 	})
-	http.ListenAndServe(":3000", r)
+
+	r.Route("/{id}", func(r chi.Router) {
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			templates.WritePageTemplate(w, &templates.VotePage{
+				Name: "What should we do today?",
+				Choices: []string{
+					"A",
+					"B",
+					"C",
+				},
+			})
+		})
+
+		r.Get("/r", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("ok"))
+		})
+	})
+
+	if err := http.ListenAndServe(":3000", r); err != nil {
+		logger.Fatal().Err(err).Msg("exiting")
+	}
 }
 
 func requestLogger(next http.Handler) http.Handler {
@@ -54,5 +77,26 @@ func requestLogger(next http.Handler) http.Handler {
 
 		next.ServeHTTP(ww, r)
 	}
+	return http.HandlerFunc(fn)
+}
+
+func recoverer(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if rvr := recover(); rvr != nil {
+				logger := zerolog.Ctx(r.Context())
+
+				logger.Info().
+					Stack().
+					Err(errors.New("panic")).
+					Interface("panic_value", rvr)
+
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			}
+		}()
+
+		next.ServeHTTP(w, r)
+	}
+
 	return http.HandlerFunc(fn)
 }
