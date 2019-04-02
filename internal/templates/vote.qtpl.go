@@ -69,51 +69,74 @@ func (p *VotePage) StreamPageMeta(qw422016 *qt422016.Writer) {
 	// line vote.qtpl:14
 	qw422016.N().S(`
 	<style>
+        .vote-list:empty {
+            padding: 12px 20px;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            border-color: #444;
+        }
+
         .vote-list:empty::after {
             content: "Drag here";
             text-align: center;
             font-style: italic;
         }
+
+        .badge {
+            margin-right: 1em;
+        }
+
+        .remove {
+            margin-left: 1em;
+        }
+
+        #vote-unchosen > .list-group-item > .badge {
+            visibility: hidden;
+        }
+
+        #vote-unchosen > .list-group-item > .remove {
+            visibility: hidden;
+        }
     </style>
 `)
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 }
 
-// line vote.qtpl:22
+// line vote.qtpl:45
 func (p *VotePage) WritePageMeta(qq422016 qtio422016.Writer) {
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 	p.StreamPageMeta(qw422016)
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 	qt422016.ReleaseWriter(qw422016)
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 }
 
-// line vote.qtpl:22
+// line vote.qtpl:45
 func (p *VotePage) PageMeta() string {
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 	p.WritePageMeta(qb422016)
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 	qs422016 := string(qb422016.B)
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 	return qs422016
-	// line vote.qtpl:22
+	// line vote.qtpl:45
 }
 
-// line vote.qtpl:24
+// line vote.qtpl:47
 func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
-	// line vote.qtpl:24
+	// line vote.qtpl:47
 	qw422016.N().S(`
     <div>
         <h1 style="text-align: center; padding: 3rem 1.5rem;">`)
-	// line vote.qtpl:26
+	// line vote.qtpl:49
 	qw422016.E().S(p.Name)
-	// line vote.qtpl:26
+	// line vote.qtpl:49
 	qw422016.N().S(`</h1>
 
         <p>To vote, drag your choices from the left to the right. Order by preference.</p>
@@ -127,23 +150,31 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
             <br/>
             <div id="vote-unchosen" class="vote-list list-group">
                 `)
-	// line vote.qtpl:38
+	// line vote.qtpl:61
 	for i, choice := range p.Choices {
-		// line vote.qtpl:38
+		// line vote.qtpl:61
 		qw422016.N().S(`
-                <div class="list-group-item" data-index="`)
-		// line vote.qtpl:39
+                <div class="list-group-item d-flex justify-content-between align-items-center" data-index="`)
+		// line vote.qtpl:62
 		qw422016.N().D(i)
-		// line vote.qtpl:39
-		qw422016.N().S(`">`)
-		// line vote.qtpl:39
+		// line vote.qtpl:62
+		qw422016.N().S(`">
+                    <span class="badge badge-secondary">`)
+		// line vote.qtpl:63
+		qw422016.N().D(len(p.Choices))
+		// line vote.qtpl:63
+		qw422016.N().S(`</span>
+                    <span class="text">`)
+		// line vote.qtpl:64
 		qw422016.E().S(choice)
-		// line vote.qtpl:39
-		qw422016.N().S(`</div>
+		// line vote.qtpl:64
+		qw422016.N().S(`</span>
+                    <i class="fa fa-times close remove" onclick="removeVote(this)"></i>
+                </div>
                 `)
-		// line vote.qtpl:40
+		// line vote.qtpl:67
 	}
-	// line vote.qtpl:40
+	// line vote.qtpl:67
 	qw422016.N().S(`
             </div>
         </div>
@@ -155,79 +186,72 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
 
             <br/>
 
-            <form class="float-right" id="vote-form" method="POST">
-                <button type="submit" class="btn btn-primary" id="submit-button" disabled>Submit</button>
+            <form id="vote-form" method="POST">
+                <button type="submit" class="btn btn-primary btn-block" id="submit-button" disabled>Submit</button>
                 <input type="hidden" id="votes" name="votes" value="" />
                 `)
-	// line vote.qtpl:54
+	// line vote.qtpl:81
 	qw422016.N().S(p.CSRF)
-	// line vote.qtpl:54
+	// line vote.qtpl:81
 	qw422016.N().S(`
             </form>
         </div>
     </div>
 `)
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 }
 
-// line vote.qtpl:58
+// line vote.qtpl:85
 func (p *VotePage) WritePageBody(qq422016 qtio422016.Writer) {
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 	p.StreamPageBody(qw422016)
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 	qt422016.ReleaseWriter(qw422016)
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 }
 
-// line vote.qtpl:58
+// line vote.qtpl:85
 func (p *VotePage) PageBody() string {
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 	p.WritePageBody(qb422016)
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 	qs422016 := string(qb422016.B)
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 	return qs422016
-	// line vote.qtpl:58
+	// line vote.qtpl:85
 }
 
-// line vote.qtpl:60
+// line vote.qtpl:87
 func (p *VotePage) StreamPageScripts(qw422016 *qt422016.Writer) {
-	// line vote.qtpl:60
+	// line vote.qtpl:87
 	qw422016.N().S(`
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <script>
-        new Sortable($("#vote-unchosen")[0], {
-            group: 'votes',
-            animation: 150,
-            onChange: function(evt) {
-                console.log(evt);
-            }
-        });
-
         var count = 0;
         var updateSubmit = function() {
             $("#submit-button").attr("disabled", count == 0);
         };
+        
+        var onChosen = function() {
+            $("#vote-chosen > div.list-group-item > span.badge").each(function(i, e) {
+                console.log(e);
+                $(e).text(i+1);
+            })
+        };
 
-        new Sortable($("#vote-chosen")[0], {
-            group: 'votes',
-            animation: 150,
-            onAdd: function(evt) {
-                count++;
-                updateSubmit();
-            },
-            onRemove: function(evt) {
-                count--;
-                updateSubmit();
-            },
-        });
+        function removeVote(e) {
+            $(e).parent().appendTo("#vote-unchosen");
+            count--;
+            updateSubmit();
+            onChosen();
+        }
 
         $(document).ready(function() {
             $("#vote-form").submit(function() {
@@ -243,34 +267,53 @@ func (p *VotePage) StreamPageScripts(qw422016 *qt422016.Writer) {
                 $("#votes").val(JSON.stringify(votes));
                 return true;
             })
-        })
+        });
+
+        new Sortable($("#vote-unchosen")[0], {
+            group: 'votes',
+            animation: 150,
+        });
+
+        new Sortable($("#vote-chosen")[0], {
+            group: 'votes',
+            animation: 150,
+            onAdd: function(evt) {
+                count++;
+                updateSubmit();
+            },
+            onRemove: function(evt) {
+                count--;
+                updateSubmit();
+            },
+            onChange: onChosen,
+        });
     </script>
 `)
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 }
 
-// line vote.qtpl:106
+// line vote.qtpl:145
 func (p *VotePage) WritePageScripts(qq422016 qtio422016.Writer) {
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 	p.StreamPageScripts(qw422016)
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 	qt422016.ReleaseWriter(qw422016)
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 }
 
-// line vote.qtpl:106
+// line vote.qtpl:145
 func (p *VotePage) PageScripts() string {
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 	p.WritePageScripts(qb422016)
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 	qs422016 := string(qb422016.B)
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 	return qs422016
-	// line vote.qtpl:106
+	// line vote.qtpl:145
 }

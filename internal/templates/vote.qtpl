@@ -13,10 +13,33 @@ type VotePage struct {
 
 {% func (p *VotePage) PageMeta() %}
 	<style>
+        .vote-list:empty {
+            padding: 12px 20px;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            border-color: #444;
+        }
+
         .vote-list:empty::after {
             content: "Drag here";
             text-align: center;
             font-style: italic;
+        }
+
+        .badge {
+            margin-right: 1em;
+        }
+
+        .remove {
+            margin-left: 1em;
+        }
+
+        #vote-unchosen > .list-group-item > .badge {
+            visibility: hidden;
+        }
+
+        #vote-unchosen > .list-group-item > .remove {
+            visibility: hidden;
         }
     </style>
 {% endfunc %}
@@ -36,7 +59,11 @@ type VotePage struct {
             <br/>
             <div id="vote-unchosen" class="vote-list list-group">
                 {% for i, choice := range p.Choices %}
-                <div class="list-group-item" data-index="{%d i %}">{%s choice %}</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center" data-index="{%d i %}">
+                    <span class="badge badge-secondary">{%d len(p.Choices) %}</span>
+                    <span class="text">{%s choice %}</span>
+                    <i class="fa fa-times close remove" onclick="removeVote(this)"></i>
+                </div>
                 {% endfor %}
             </div>
         </div>
@@ -48,8 +75,8 @@ type VotePage struct {
 
             <br/>
 
-            <form class="float-right" id="vote-form" method="POST">
-                <button type="submit" class="btn btn-primary" id="submit-button" disabled>Submit</button>
+            <form id="vote-form" method="POST">
+                <button type="submit" class="btn btn-primary btn-block" id="submit-button" disabled>Submit</button>
                 <input type="hidden" id="votes" name="votes" value="" />
                 {%s= p.CSRF %}
             </form>
@@ -61,31 +88,24 @@ type VotePage struct {
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <script>
-        new Sortable($("#vote-unchosen")[0], {
-            group: 'votes',
-            animation: 150,
-            onChange: function(evt) {
-                console.log(evt);
-            }
-        });
-
         var count = 0;
         var updateSubmit = function() {
             $("#submit-button").attr("disabled", count == 0);
         };
+        
+        var onChosen = function() {
+            $("#vote-chosen > div.list-group-item > span.badge").each(function(i, e) {
+                console.log(e);
+                $(e).text(i+1);
+            })
+        };
 
-        new Sortable($("#vote-chosen")[0], {
-            group: 'votes',
-            animation: 150,
-            onAdd: function(evt) {
-                count++;
-                updateSubmit();
-            },
-            onRemove: function(evt) {
-                count--;
-                updateSubmit();
-            },
-        });
+        function removeVote(e) {
+            $(e).parent().appendTo("#vote-unchosen");
+            count--;
+            updateSubmit();
+            onChosen();
+        }
 
         $(document).ready(function() {
             $("#vote-form").submit(function() {
@@ -101,6 +121,25 @@ type VotePage struct {
                 $("#votes").val(JSON.stringify(votes));
                 return true;
             })
-        })
+        });
+
+        new Sortable($("#vote-unchosen")[0], {
+            group: 'votes',
+            animation: 150,
+        });
+
+        new Sortable($("#vote-chosen")[0], {
+            group: 'votes',
+            animation: 150,
+            onAdd: function(evt) {
+                count++;
+                updateSubmit();
+            },
+            onRemove: function(evt) {
+                count--;
+                updateSubmit();
+            },
+            onChange: onChosen,
+        });
     </script>
 {% endfunc %}

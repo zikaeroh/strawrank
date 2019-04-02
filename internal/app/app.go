@@ -93,7 +93,7 @@ func (a *App) handleVote(w http.ResponseWriter, r *http.Request) {
 		CSRF: string(csrf.TemplateField(r)),
 		Name: "What should we do today?",
 		Choices: []string{
-			"A",
+			"This is a super long choice that likely wraps and that's not so good. Let's make it even longer, shall we?",
 			"B",
 			"C",
 		},
