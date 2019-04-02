@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"time"
 
@@ -11,30 +10,38 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/securecookie"
 	"github.com/rs/xid"
-	"github.com/rs/zerolog"
+	"github.com/zikaeroh/strawrank/internal/ctxlog"
 	"github.com/zikaeroh/strawrank/internal/templates"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
+// TODO: flag
+const debug = true
+
 func main() {
+	// TODO: flag
 	secureKey := []byte("a-32-byte-long-key-goes-here")
 
-	logger := zerolog.New(zerolog.NewConsoleWriter(func(w *zerolog.ConsoleWriter) {
-		w.TimeFormat = time.RFC3339
-	})).With().Timestamp().Caller().Logger()
+	var logConfig zap.Config
+
+	if debug {
+		logConfig = zap.NewDevelopmentConfig()
+		logConfig.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	} else {
+		logConfig = zap.NewProductionConfig()
+	}
+
+	logger, err := logConfig.Build()
+	if err != nil {
+		panic(err)
+	}
 
 	sc := securecookie.New(secureKey, nil)
 
 	r := chi.NewRouter()
 
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := r.Context()
-			ctx = logger.WithContext(ctx)
-			r = r.WithContext(ctx)
-			next.ServeHTTP(w, r)
-		})
-	})
-
+	r.Use(ctxlog.Logger(logger))
 	r.Use(requestLogger)
 	r.Use(recoverer)
 
@@ -53,18 +60,17 @@ func main() {
 
 	r.Route("/{id}", func(r chi.Router) {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			logger := zerolog.Ctx(r.Context())
+			logger := ctxlog.FromRequest(r)
 
 			user, err := getSetUserID(sc, w, r)
 			if err != nil {
-				logger.Debug().Err(err).Msg("failed to get user ID")
+				logger.Debug("failed to get user ID", zap.Error(err))
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
 
 			// Hack to deal with zerolog's bad API
-			tmpLogger := logger.With().Str("user", user.String()).Logger()
-			logger = &tmpLogger
+			logger = logger.With(zap.String("user", user.String()))
 
 			if r.Method == http.MethodPost {
 				votesStr := r.FormValue("votes")
@@ -76,7 +82,7 @@ func main() {
 					return
 				}
 
-				logger.Debug().Ints("votes", votes).Msg("posted vote")
+				logger.Debug("posted vote", zap.Ints("votes", votes))
 
 				// Post/Redirect/Get
 				http.Redirect(w, r, r.URL.String()+"/r", http.StatusSeeOther)
@@ -103,7 +109,9 @@ func main() {
 	})
 
 	if err := http.ListenAndServe(":3000", r); err != nil {
-		logger.Fatal().Err(err).Msg("exiting")
+		logger.Fatal("exiting",
+			zap.Error(err),
+		)
 	}
 }
 
@@ -114,16 +122,16 @@ func requestLogger(next http.Handler) http.Handler {
 
 		defer func() {
 			duration := time.Since(start)
-			logger := zerolog.Ctx(r.Context())
+			logger := ctxlog.FromRequest(r)
 
-			logger.Info().
-				Str("method", r.Method).
-				Str("url", r.RequestURI).
-				Str("proto", r.Proto).
-				Int("status", ww.Status()).
-				Int("size", ww.BytesWritten()).
-				Dur("duration", duration).
-				Msg("http request")
+			logger.Info("http request",
+				zap.String("method", r.Method),
+				zap.String("url", r.RequestURI),
+				zap.String("proto", r.Proto),
+				zap.Int("status", ww.Status()),
+				zap.Int("size", ww.BytesWritten()),
+				zap.Duration("duration", duration),
+			)
 		}()
 
 		next.ServeHTTP(ww, r)
@@ -135,13 +143,14 @@ func recoverer(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rvr := recover(); rvr != nil {
-				logger := zerolog.Ctx(r.Context())
+				logger := ctxlog.FromRequest(r)
 
-				logger.Error().
-					Stack().
-					Err(errors.New("panic")).
-					Interface("panic_value", rvr).
-					Msg("panic")
+				// Ensure logger is logging stack traces, at least here.
+				logger = logger.WithOptions(zap.AddStacktrace(zap.ErrorLevel))
+
+				logger.Error("PANIC",
+					zap.Any("panic_value", rvr),
+				)
 
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
