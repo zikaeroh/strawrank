@@ -153,10 +153,10 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
             <br/>
             <div id="vote-chosen" class="vote-list list-group"></div>
 
-            <br>
+            <br/>
 
             <form class="float-right" id="vote-form" method="POST">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary" id="submit-button" disabled>Submit</button>
                 <input type="hidden" id="votes" name="votes" value="" />
                 `)
 	// line vote.qtpl:54
@@ -211,12 +211,22 @@ func (p *VotePage) StreamPageScripts(qw422016 *qt422016.Writer) {
             }
         });
 
+        var count = 0;
+        var updateSubmit = function() {
+            $("#submit-button").attr("disabled", count == 0);
+        };
+
         new Sortable($("#vote-chosen")[0], {
             group: 'votes',
             animation: 150,
-            onChange: function(evt) {
-                // console.log(evt);
-            }
+            onAdd: function(evt) {
+                count++;
+                updateSubmit();
+            },
+            onRemove: function(evt) {
+                count--;
+                updateSubmit();
+            },
         });
 
         $(document).ready(function() {
@@ -236,31 +246,31 @@ func (p *VotePage) StreamPageScripts(qw422016 *qt422016.Writer) {
         })
     </script>
 `)
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 }
 
-// line vote.qtpl:96
+// line vote.qtpl:106
 func (p *VotePage) WritePageScripts(qq422016 qtio422016.Writer) {
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 	p.StreamPageScripts(qw422016)
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 	qt422016.ReleaseWriter(qw422016)
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 }
 
-// line vote.qtpl:96
+// line vote.qtpl:106
 func (p *VotePage) PageScripts() string {
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 	p.WritePageScripts(qb422016)
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 	qs422016 := string(qb422016.B)
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 	return qs422016
-	// line vote.qtpl:96
+	// line vote.qtpl:106
 }

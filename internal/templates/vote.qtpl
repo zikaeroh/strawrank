@@ -46,10 +46,10 @@ type VotePage struct {
             <br/>
             <div id="vote-chosen" class="vote-list list-group"></div>
 
-            <br>
+            <br/>
 
             <form class="float-right" id="vote-form" method="POST">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary" id="submit-button" disabled>Submit</button>
                 <input type="hidden" id="votes" name="votes" value="" />
                 {%s= p.CSRF %}
             </form>
@@ -69,12 +69,22 @@ type VotePage struct {
             }
         });
 
+        var count = 0;
+        var updateSubmit = function() {
+            $("#submit-button").attr("disabled", count == 0);
+        };
+
         new Sortable($("#vote-chosen")[0], {
             group: 'votes',
             animation: 150,
-            onChange: function(evt) {
-                // console.log(evt);
-            }
+            onAdd: function(evt) {
+                count++;
+                updateSubmit();
+            },
+            onRemove: function(evt) {
+                count--;
+                updateSubmit();
+            },
         });
 
         $(document).ready(function() {
