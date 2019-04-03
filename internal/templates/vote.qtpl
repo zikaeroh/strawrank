@@ -89,7 +89,7 @@ type VotePage struct {
 {% endfunc %}
 
 {% func (p *VotePage) PageScripts() %}
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.8.4/Sortable.min.js" integrity="sha256-yEySJXdfoPg1V6xPh7TjRM0MRZnJCnIxsoBEp50u0as=" crossorigin="anonymous"></script>
 
     <script>
         var count = 0;
@@ -132,12 +132,14 @@ type VotePage struct {
         new Sortable($("#vote-unchosen")[0], {
             group: 'votes',
             animation: 150,
+            chosenClass: 'list-group-item-light',
             onChange: onChange,
         });
 
         new Sortable($("#vote-chosen")[0], {
             group: 'votes',
             animation: 150,
+            chosenClass: 'list-group-item-light',
             onAdd: function(evt) {
                 count++;
                 updateSubmit();

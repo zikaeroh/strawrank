@@ -231,7 +231,7 @@ func (p *VotePage) PageBody() string {
 func (p *VotePage) StreamPageScripts(qw422016 *qt422016.Writer) {
 	// line vote.qtpl:91
 	qw422016.N().S(`
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.8.4/Sortable.min.js" integrity="sha256-yEySJXdfoPg1V6xPh7TjRM0MRZnJCnIxsoBEp50u0as=" crossorigin="anonymous"></script>
 
     <script>
         var count = 0;
@@ -274,12 +274,14 @@ func (p *VotePage) StreamPageScripts(qw422016 *qt422016.Writer) {
         new Sortable($("#vote-unchosen")[0], {
             group: 'votes',
             animation: 150,
+            chosenClass: 'list-group-item-light',
             onChange: onChange,
         });
 
         new Sortable($("#vote-chosen")[0], {
             group: 'votes',
             animation: 150,
+            chosenClass: 'list-group-item-light',
             onAdd: function(evt) {
                 count++;
                 updateSubmit();
@@ -292,31 +294,31 @@ func (p *VotePage) StreamPageScripts(qw422016 *qt422016.Writer) {
         });
     </script>
 `)
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 }
 
-// line vote.qtpl:152
+// line vote.qtpl:154
 func (p *VotePage) WritePageScripts(qq422016 qtio422016.Writer) {
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 	p.StreamPageScripts(qw422016)
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 	qt422016.ReleaseWriter(qw422016)
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 }
 
-// line vote.qtpl:152
+// line vote.qtpl:154
 func (p *VotePage) PageScripts() string {
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 	p.WritePageScripts(qb422016)
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 	qs422016 := string(qb422016.B)
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 	return qs422016
-	// line vote.qtpl:152
+	// line vote.qtpl:154
 }
