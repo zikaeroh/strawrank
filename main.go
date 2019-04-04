@@ -30,9 +30,10 @@ func main() {
 	}
 
 	a, err := app.New(&app.Config{
-		Logger:    logger,
-		CookieKey: secureKey,
-		HIDSalt:   "PJSalt",
+		Logger:       logger,
+		CookieKey:    secureKey,
+		HIDMinLength: 5,
+		HIDSalt:      "PJSalt",
 	})
 	if err != nil {
 		logger.Fatal("creating app", zap.Error(err))

@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/securecookie"
 	"github.com/speps/go-hashids"
+	"github.com/zikaeroh/strawrank/internal/app/mid"
 	"github.com/zikaeroh/strawrank/internal/ctxlog"
 	"github.com/zikaeroh/strawrank/internal/templates"
 	"go.uber.org/zap"
@@ -18,7 +19,8 @@ type Config struct {
 
 	CookieKey []byte
 
-	HIDSalt string
+	HIDMinLength int
+	HIDSalt      string
 }
 
 type App struct {
@@ -35,8 +37,9 @@ func New(c *Config) (*App, error) {
 	}
 
 	a.hid, err = hashids.NewWithData(&hashids.HashIDData{
-		Alphabet: hashids.DefaultAlphabet,
-		Salt:     c.HIDSalt,
+		Alphabet:  hashids.DefaultAlphabet,
+		MinLength: c.HIDMinLength,
+		Salt:      c.HIDSalt,
 	})
 	if err != nil {
 		return nil, err
@@ -49,9 +52,9 @@ func New(c *Config) (*App, error) {
 		r.Use(ctxlog.Logger(c.Logger))
 	}
 
-	r.Use(injectRequestID)
-	r.Use(requestLogger)
-	r.Use(recoverer)
+	r.Use(mid.RequestID)
+	r.Use(mid.RequestLogger)
+	r.Use(mid.Recoverer)
 	r.Use(csrf.Protect(c.CookieKey, csrf.Secure(false)))
 
 	r.Get("/", a.handleIndex)
