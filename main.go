@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/hex"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -11,8 +13,16 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var args struct {
+var args = struct {
+	CookieKey string `long:"cookie-key" env:"SR_COOKIE_KEY" description:"Cookie encryption key, hex encoded" required:"true"`
+
+	HIDMinLength int    `long:"hid-min-length" env:"SR_HID_MIN_LENGTH" description:"HashID minimum length"`
+	HIDSalt      string `long:"hid-salt" env:"SR_HID_SALT" description:"HashID salt"`
+
 	Debug bool `long:"debug" env:"SR_DEBUG" description:"Enables debug mode, including extra routes and logging"`
+}{
+	HIDMinLength: 5,
+	HIDSalt:      "PJSalt",
 }
 
 func main() {
@@ -27,8 +37,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: flag
-	secureKey := []byte("a-32-byte-long-key-goes-here")
+	cookieKey, err := hex.DecodeString(args.CookieKey)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error decoding cookie key: %v", err)
+		os.Exit(1)
+	}
 
 	var logConfig zap.Config
 
@@ -46,9 +59,9 @@ func main() {
 
 	a, err := app.New(&app.Config{
 		Logger:       logger,
-		CookieKey:    secureKey,
-		HIDMinLength: 5,
-		HIDSalt:      "PJSalt",
+		CookieKey:    cookieKey,
+		HIDMinLength: args.HIDMinLength,
+		HIDSalt:      args.HIDSalt,
 	})
 	if err != nil {
 		logger.Fatal("creating app", zap.Error(err))
