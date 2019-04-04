@@ -60,7 +60,7 @@ func StreamPageTemplate(qw422016 *qt422016.Writer, p Page) {
 	p.StreamPageTitle(qw422016)
 	// line base.qtpl:14
 	qw422016.N().S(`</title>
-        <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/darkly/bootstrap.min.css" rel="stylesheet" integrity="sha384-w+8Gqjk9Cuo6XH9HKHG5t5I1VR4YBNdPt/29vwgfZR485eoEJZ8rJRbm3TR32P6k" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/darkly/bootstrap.min.css" integrity="sha256-6W1mxPaAt4a6pkJVW5x5Xmq/LvxuQpR9dlzgy77SeZs=" crossorigin="anonymous" />
         
         `)
 	// line base.qtpl:17
@@ -69,7 +69,7 @@ func StreamPageTemplate(qw422016 *qt422016.Writer, p Page) {
 	qw422016.N().S(`
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top box-shadow">
             <a class="navbar-brand" href="/">StrawRank</a>
             `)
 	// line base.qtpl:22
@@ -77,7 +77,7 @@ func StreamPageTemplate(qw422016 *qt422016.Writer, p Page) {
 		// line base.qtpl:22
 		qw422016.N().S(`
             <div class="nav-item">
-                <a class="nav-link active" style="color: white" href="/">Create a new poll</a>
+                <a class="nav-link active text-white" href="/">Create a new poll</a>
             </div>
             `)
 		// line base.qtpl:26
@@ -95,7 +95,7 @@ func StreamPageTemplate(qw422016 *qt422016.Writer, p Page) {
         </div>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/popper.min.js" integrity="sha256-/ANLkdxSQduAVQeiNIfmaO0V4eR8kell64GgSRn+ggY=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha256-ZvOgfh+ptkpoa2Y4HkRY28ir89u/+VRyDE7sB7hEEcI=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha256-CjSoeELFOcH0/uxWu6mC/Vlrc1AARqbm/jiiImDGV3s=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/js/all.min.js" integrity="sha256-HT9Zb3b1PVPvfLH/7/1veRtUvWObQuTyPn8tezb5HEg=" crossorigin="anonymous"></script>
         

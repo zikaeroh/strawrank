@@ -1,0 +1,18 @@
+{% code
+type ResultsPage struct {
+    Name string
+    BasePage
+}
+%}
+
+{% func (p *ResultsPage) PageTitle() %}
+	StrawRank - Results - {%s p.Name %}
+{% endfunc %}
+
+{% func (p *ResultsPage) PageBody() %}
+    <div class="row">
+        <div class="col">
+            <h1>Wassap</h1>
+        </div>
+    </div>
+{% endfunc %}

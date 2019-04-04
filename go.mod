@@ -10,6 +10,7 @@ require (
 	github.com/gorilla/securecookie v1.1.1
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/rs/xid v1.2.1
+	github.com/speps/go-hashids v2.0.0+incompatible
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/valyala/quicktemplate v1.0.2
 	go.uber.org/atomic v1.3.2 // indirect

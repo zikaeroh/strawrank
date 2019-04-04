@@ -1,0 +1,18 @@
+{% code
+type IndexPage struct {
+    BasePage
+    CSRF string
+}
+%}
+
+{% func (p *IndexPage) PageTitle() %}
+	StrawRank
+{% endfunc %}
+
+{% func (p *IndexPage) PageBody() %}
+    <div class="row">
+        <div class="col">
+            <h1>Wassap</h1>
+        </div>
+    </div>
+{% endfunc %}

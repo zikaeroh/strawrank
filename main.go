@@ -29,14 +29,16 @@ func main() {
 		panic(err)
 	}
 
-	a := app.New(&app.Config{
+	a, err := app.New(&app.Config{
 		Logger:    logger,
 		CookieKey: secureKey,
+		HIDSalt:   "PJSalt",
 	})
+	if err != nil {
+		logger.Fatal("creating app", zap.Error(err))
+	}
 
 	if err := http.ListenAndServe(":3000", a); err != nil {
-		logger.Fatal("exiting",
-			zap.Error(err),
-		)
+		logger.Fatal("exiting", zap.Error(err))
 	}
 }
