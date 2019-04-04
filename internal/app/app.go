@@ -55,10 +55,12 @@ func New(c *Config) (*App, error) {
 	r.Use(mid.RequestID)
 	r.Use(mid.RequestLogger)
 	r.Use(mid.Recoverer)
+
+	// Secure is false as this will likely be run behind a proxy.
 	r.Use(csrf.Protect(c.CookieKey, csrf.Secure(false)))
 
 	r.Get("/", a.handleIndex)
-	r.Get("/favicon.ico", http.NotFound)
+	r.Get("/favicon.ico", http.NotFound) // TODO
 
 	r.Route("/{pollID}", func(r chi.Router) {
 		r.Use(a.pollIDCheck("pollID"))
