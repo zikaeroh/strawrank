@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 
 	"github.com/jessevdk/go-flags"
 	"github.com/joho/godotenv"
@@ -14,6 +16,8 @@ import (
 )
 
 var args = struct {
+	Addr string `long:"addr" env:"SR_ADDR" description:"Address to listen at"`
+
 	CookieKey string `long:"cookie-key" env:"SR_COOKIE_KEY" description:"Cookie encryption key, hex encoded" required:"true"`
 
 	HIDMinLength int    `long:"hid-min-length" env:"SR_HID_MIN_LENGTH" description:"HashID minimum length"`
@@ -21,6 +25,7 @@ var args = struct {
 
 	Debug bool `long:"debug" env:"SR_DEBUG" description:"Enables debug mode, including extra routes and logging"`
 }{
+	Addr:         ":3000",
 	HIDMinLength: 5,
 	HIDSalt:      "PJSalt",
 }
@@ -57,6 +62,11 @@ func main() {
 		panic(err)
 	}
 
+	logger.Info("starting")
+
+	undoStdlog := zap.RedirectStdLog(logger)
+	defer undoStdlog()
+
 	a, err := app.New(&app.Config{
 		Logger:       logger,
 		CookieKey:    cookieKey,
@@ -67,7 +77,30 @@ func main() {
 		logger.Fatal("creating app", zap.Error(err))
 	}
 
-	if err := http.ListenAndServe(":3000", a); err != nil {
-		logger.Fatal("exiting", zap.Error(err))
+	srv := http.Server{
+		Addr:    args.Addr,
+		Handler: a,
 	}
+
+	idleConnsClosed := make(chan struct{})
+	go func() {
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt)
+		<-sigint
+		logger.Info("shutting down server")
+
+		if err := srv.Shutdown(context.Background()); err != nil {
+			logger.Error("error shutting down server", zap.Error(err))
+		}
+		close(idleConnsClosed)
+	}()
+
+	if err := srv.ListenAndServe(); err != nil {
+		if err != http.ErrServerClosed {
+			logger.Error("listen and serve error", zap.Error(err))
+		}
+	}
+
+	<-idleConnsClosed
+	logger.Info("server shut down")
 }
