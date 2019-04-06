@@ -1,0 +1,25 @@
+{% code
+type AboutPage struct {
+    BasePage
+}
+%}
+
+{% func (p *AboutPage) PageTitle() %}
+	StrawRank - About
+{% endfunc %}
+
+{% func (p *AboutPage) PageBody() %}
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="mb-3">What is StrawRank?</h1>
+
+        <p>
+            StrawRank lets you create online polls where voters can
+            order their choices (and completely omit unwanted ones).
+        </p>
+
+        <p>
+            The results page tallies the votes in multiple different ways, most notably
+            with <a href="https://en.wikipedia.org/wiki/Instant-runoff_voting" target="_blank">instant-runoff</a>.
+        </p>
+    </div>
+{% endfunc %}

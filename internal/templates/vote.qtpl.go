@@ -23,7 +23,7 @@ type VotePage struct {
 
 func (p *VotePage) StreamPageTitle(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
-	StrawRank - `)
+	StrawRank - Vote - `)
 	qw422016.E().S(p.Name)
 	qw422016.N().S(`
 `)

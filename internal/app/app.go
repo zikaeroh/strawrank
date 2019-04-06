@@ -65,7 +65,9 @@ func New(c *Config) (*App, error) {
 
 	r.Get("/favicon.ico", http.NotFound) // TODO
 
-	r.Route("/{pollID}", func(r chi.Router) {
+	r.Get("/about", a.handleAbout)
+
+	r.Route("/p/{pollID}", func(r chi.Router) {
 		r.Use(a.pollIDCheck("pollID"))
 
 		r.Group(func(r chi.Router) {
@@ -110,7 +112,7 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/"+p, http.StatusSeeOther)
+	http.Redirect(w, r, "/p/"+p, http.StatusSeeOther)
 }
 
 func (a *App) handleVote(w http.ResponseWriter, r *http.Request) {
@@ -160,4 +162,8 @@ func (a *App) handleResults(w http.ResponseWriter, r *http.Request) {
 	templates.WritePageTemplate(w, &templates.ResultsPage{
 		Name: "This is a test",
 	})
+}
+
+func (a *App) handleAbout(w http.ResponseWriter, r *http.Request) {
+	templates.WritePageTemplate(w, &templates.AboutPage{})
 }

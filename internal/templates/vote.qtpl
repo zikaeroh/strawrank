@@ -8,7 +8,7 @@ type VotePage struct {
 %}
 
 {% func (p *VotePage) PageTitle() %}
-	StrawRank - {%s p.Name %}
+	StrawRank - Vote - {%s p.Name %}
 {% endfunc %}
 
 {% func (p *VotePage) PageMeta() %}
