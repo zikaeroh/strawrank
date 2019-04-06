@@ -73,7 +73,7 @@ func New(c *Config) (*App, error) {
 		r.Group(func(r chi.Router) {
 			r.Use(a.userIDCheck)
 			r.Get("/", a.handleVote)
-			r.Post("/", a.handleVote)
+			r.Post("/", a.handleVotePost)
 		})
 
 		r.With(middleware.NoCache).Get("/r", a.handleResults)
@@ -116,34 +116,8 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleVote(w http.ResponseWriter, r *http.Request) {
-	logger := ctxlog.FromRequest(r)
-
 	// pollIDs := getPollID(r)
 	// userID := getUserID(r)
-
-	if r.Method == http.MethodPost {
-		votesStr := r.FormValue("votes")
-		var votes []int
-
-		if err := json.Unmarshal([]byte(votesStr), &votes); err != nil {
-			// TODO: Do someting in the UI instead.
-			httpError(w, http.StatusBadRequest)
-			return
-		}
-
-		if len(votes) == 0 {
-			httpError(w, http.StatusBadRequest)
-			return
-		}
-
-		logger.Debug("posted vote", zap.Ints("votes", votes))
-
-		// TODO: tally votes
-
-		// Post/Redirect/Get
-		http.Redirect(w, r, r.URL.String()+"/r", http.StatusSeeOther)
-		return
-	}
 
 	templates.WritePageTemplate(w, &templates.VotePage{
 		CSRF: string(csrf.TemplateField(r)),
@@ -154,6 +128,35 @@ func (a *App) handleVote(w http.ResponseWriter, r *http.Request) {
 			"C",
 		},
 	})
+}
+
+func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
+	logger := ctxlog.FromRequest(r)
+
+	// pollIDs := getPollID(r)
+	// userID := getUserID(r)
+
+	votesStr := r.FormValue("votes")
+	var votes []int
+
+	if err := json.Unmarshal([]byte(votesStr), &votes); err != nil {
+		// TODO: Do someting in the UI instead.
+		httpError(w, http.StatusBadRequest)
+		return
+	}
+
+	if len(votes) == 0 {
+		httpError(w, http.StatusBadRequest)
+		return
+	}
+
+	logger.Debug("posted vote", zap.Ints("votes", votes))
+
+	// TODO: tally votes
+
+	// Post/Redirect/Get
+	http.Redirect(w, r, r.RequestURI+"/r", http.StatusSeeOther)
+
 }
 
 func (a *App) handleResults(w http.ResponseWriter, r *http.Request) {
