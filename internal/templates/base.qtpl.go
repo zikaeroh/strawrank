@@ -55,12 +55,12 @@ func StreamPageTemplate(qw422016 *qt422016.Writer, p Page) {
                 <div class="nav-item">
                     <a class="nav-link active text-white" href="/">Create a new poll</a>
                 </div>
-                <div class="nav-item ml-auto">
-                    <a class="nav-link text-white" href="/about">About</a>
-                </div>
                 `)
 	}
 	qw422016.N().S(`
+                <div class="nav-item ml-auto">
+                    <a class="nav-link text-white" href="/about">About</a>
+                </div>
             </div>
         </nav>
 
