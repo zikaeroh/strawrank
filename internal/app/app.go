@@ -104,7 +104,13 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: store submission, redirect to results page
 
-	_, _ = w.Write([]byte("ok"))
+	p, err := a.hid.Encode([]int{1})
+	if err != nil {
+		httpError(w, http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/"+p, http.StatusSeeOther)
 }
 
 func (a *App) handleVote(w http.ResponseWriter, r *http.Request) {

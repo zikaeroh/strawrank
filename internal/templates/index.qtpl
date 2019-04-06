@@ -16,13 +16,16 @@ type IndexPage struct {
         <p>
             Type your question and choices below.
             Voters will be able to choose and rank them as they prefer.
-            Ordering does not matter; they will be randomized on the voting page.
+        </p>
+
+        <p>
+            Order does not matter; choices will be randomized on the voting page.
         </p>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-6">
-            <form method="POST">
+            <form method="POST" autocomplete="off">
                 <div class="form-group input-group-lg">
                     <input name="question" class="form-control" type="text" placeholder="Type your question here" required>
                 </div>
@@ -35,13 +38,14 @@ type IndexPage struct {
                     {%= p.Choice() %}
                     {%= p.Choice() %}
                 </div>
-                
-                <button class="btn btn-primary" type="submit">Submit</button>
+
+                <div class="form-group d-flex">
+                    <button class="btn btn-primary mr-auto" type="submit">Submit</button>
+                    <button class="btn btn-secondary ml-auto" onclick="addAnother(); return false">Add another</button>
+                </div>
 
                 {%s= p.CSRF %}
             </form>
-
-            <button class="btn btn-primary" onclick="addAnother()">Add another</button>
         </div>
     </div>
 {% endfunc %}

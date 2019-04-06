@@ -68,13 +68,16 @@ func (p *IndexPage) StreamPageBody(qw422016 *qt422016.Writer) {
         <p>
             Type your question and choices below.
             Voters will be able to choose and rank them as they prefer.
-            Ordering does not matter; they will be randomized on the voting page.
+        </p>
+
+        <p>
+            Order does not matter; choices will be randomized on the voting page.
         </p>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-6">
-            <form method="POST">
+            <form method="POST" autocomplete="off">
                 <div class="form-group input-group-lg">
                     <input name="question" class="form-control" type="text" placeholder="Type your question here" required>
                 </div>
@@ -84,83 +87,84 @@ func (p *IndexPage) StreamPageBody(qw422016 *qt422016.Writer) {
                 
                 <div id="choice-inputs">
                     `)
-	// line index.qtpl:34
+	// line index.qtpl:37
 	p.StreamChoice(qw422016)
-	// line index.qtpl:34
+	// line index.qtpl:37
 	qw422016.N().S(`
                     `)
-	// line index.qtpl:35
+	// line index.qtpl:38
 	p.StreamChoice(qw422016)
-	// line index.qtpl:35
+	// line index.qtpl:38
 	qw422016.N().S(`
                     `)
-	// line index.qtpl:36
+	// line index.qtpl:39
 	p.StreamChoice(qw422016)
-	// line index.qtpl:36
+	// line index.qtpl:39
 	qw422016.N().S(`
                 </div>
-                
-                <button class="btn btn-primary" type="submit">Submit</button>
+
+                <div class="form-group d-flex">
+                    <button class="btn btn-primary mr-auto" type="submit">Submit</button>
+                    <button class="btn btn-secondary ml-auto" onclick="addAnother(); return false">Add another</button>
+                </div>
 
                 `)
-	// line index.qtpl:41
+	// line index.qtpl:47
 	qw422016.N().S(p.CSRF)
-	// line index.qtpl:41
+	// line index.qtpl:47
 	qw422016.N().S(`
             </form>
-
-            <button class="btn btn-primary" onclick="addAnother()">Add another</button>
         </div>
     </div>
 `)
-	// line index.qtpl:47
+	// line index.qtpl:51
 }
 
-// line index.qtpl:47
+// line index.qtpl:51
 func (p *IndexPage) WritePageBody(qq422016 qtio422016.Writer) {
-	// line index.qtpl:47
+	// line index.qtpl:51
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line index.qtpl:47
+	// line index.qtpl:51
 	p.StreamPageBody(qw422016)
-	// line index.qtpl:47
+	// line index.qtpl:51
 	qt422016.ReleaseWriter(qw422016)
-	// line index.qtpl:47
+	// line index.qtpl:51
 }
 
-// line index.qtpl:47
+// line index.qtpl:51
 func (p *IndexPage) PageBody() string {
-	// line index.qtpl:47
+	// line index.qtpl:51
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line index.qtpl:47
+	// line index.qtpl:51
 	p.WritePageBody(qb422016)
-	// line index.qtpl:47
+	// line index.qtpl:51
 	qs422016 := string(qb422016.B)
-	// line index.qtpl:47
+	// line index.qtpl:51
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line index.qtpl:47
+	// line index.qtpl:51
 	return qs422016
-	// line index.qtpl:47
+	// line index.qtpl:51
 }
 
-// line index.qtpl:49
+// line index.qtpl:53
 func (p *IndexPage) StreamPageScripts(qw422016 *qt422016.Writer) {
-	// line index.qtpl:49
+	// line index.qtpl:53
 	qw422016.N().S(`
     <script>
         var choiceInput = `)
-	// line index.qtpl:51
+	// line index.qtpl:55
 	{
-		// line index.qtpl:51
+		// line index.qtpl:55
 		qb422016 := qt422016.AcquireByteBuffer()
-		// line index.qtpl:51
+		// line index.qtpl:55
 		p.WriteChoice(qb422016)
-		// line index.qtpl:51
+		// line index.qtpl:55
 		qw422016.N().QZ(qb422016.B)
-		// line index.qtpl:51
+		// line index.qtpl:55
 		qt422016.ReleaseByteBuffer(qb422016)
-		// line index.qtpl:51
+		// line index.qtpl:55
 	}
-	// line index.qtpl:51
+	// line index.qtpl:55
 	qw422016.N().S(`;
 
         function addAnother() {
@@ -168,70 +172,70 @@ func (p *IndexPage) StreamPageScripts(qw422016 *qt422016.Writer) {
         }
     </script>
 `)
-	// line index.qtpl:57
-}
-
-// line index.qtpl:57
-func (p *IndexPage) WritePageScripts(qq422016 qtio422016.Writer) {
-	// line index.qtpl:57
-	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line index.qtpl:57
-	p.StreamPageScripts(qw422016)
-	// line index.qtpl:57
-	qt422016.ReleaseWriter(qw422016)
-	// line index.qtpl:57
-}
-
-// line index.qtpl:57
-func (p *IndexPage) PageScripts() string {
-	// line index.qtpl:57
-	qb422016 := qt422016.AcquireByteBuffer()
-	// line index.qtpl:57
-	p.WritePageScripts(qb422016)
-	// line index.qtpl:57
-	qs422016 := string(qb422016.B)
-	// line index.qtpl:57
-	qt422016.ReleaseByteBuffer(qb422016)
-	// line index.qtpl:57
-	return qs422016
-	// line index.qtpl:57
-}
-
-// line index.qtpl:60
-func (p *IndexPage) StreamChoice(qw422016 *qt422016.Writer) {
-	// line index.qtpl:60
-	qw422016.N().S(`
-`)
 	// line index.qtpl:61
-	qw422016.N().S(`<div class="form-group"><input name="choice" class="form-control" type="text" placeholder="Choice" required></div>`)
-	// line index.qtpl:65
+}
+
+// line index.qtpl:61
+func (p *IndexPage) WritePageScripts(qq422016 qtio422016.Writer) {
+	// line index.qtpl:61
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	// line index.qtpl:61
+	p.StreamPageScripts(qw422016)
+	// line index.qtpl:61
+	qt422016.ReleaseWriter(qw422016)
+	// line index.qtpl:61
+}
+
+// line index.qtpl:61
+func (p *IndexPage) PageScripts() string {
+	// line index.qtpl:61
+	qb422016 := qt422016.AcquireByteBuffer()
+	// line index.qtpl:61
+	p.WritePageScripts(qb422016)
+	// line index.qtpl:61
+	qs422016 := string(qb422016.B)
+	// line index.qtpl:61
+	qt422016.ReleaseByteBuffer(qb422016)
+	// line index.qtpl:61
+	return qs422016
+	// line index.qtpl:61
+}
+
+// line index.qtpl:64
+func (p *IndexPage) StreamChoice(qw422016 *qt422016.Writer) {
+	// line index.qtpl:64
 	qw422016.N().S(`
 `)
-	// line index.qtpl:66
+	// line index.qtpl:65
+	qw422016.N().S(`<div class="form-group"><input name="choice" class="form-control" type="text" placeholder="Choice" required></div>`)
+	// line index.qtpl:69
+	qw422016.N().S(`
+`)
+	// line index.qtpl:70
 }
 
-// line index.qtpl:66
+// line index.qtpl:70
 func (p *IndexPage) WriteChoice(qq422016 qtio422016.Writer) {
-	// line index.qtpl:66
+	// line index.qtpl:70
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	// line index.qtpl:66
+	// line index.qtpl:70
 	p.StreamChoice(qw422016)
-	// line index.qtpl:66
+	// line index.qtpl:70
 	qt422016.ReleaseWriter(qw422016)
-	// line index.qtpl:66
+	// line index.qtpl:70
 }
 
-// line index.qtpl:66
+// line index.qtpl:70
 func (p *IndexPage) Choice() string {
-	// line index.qtpl:66
+	// line index.qtpl:70
 	qb422016 := qt422016.AcquireByteBuffer()
-	// line index.qtpl:66
+	// line index.qtpl:70
 	p.WriteChoice(qb422016)
-	// line index.qtpl:66
+	// line index.qtpl:70
 	qs422016 := string(qb422016.B)
-	// line index.qtpl:66
+	// line index.qtpl:70
 	qt422016.ReleaseByteBuffer(qb422016)
-	// line index.qtpl:66
+	// line index.qtpl:70
 	return qs422016
-	// line index.qtpl:66
+	// line index.qtpl:70
 }
