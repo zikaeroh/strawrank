@@ -1,3 +1,5 @@
+{% import "math/rand" %}
+
 {% code
 type VotePage struct {
     BasePage
@@ -57,12 +59,28 @@ type VotePage struct {
             <h4 class="text-center mb-4">Available choices</h4>
 
             <div id="vote-unchosen" class="vote-list list-group">
-                {% for i, choice := range p.Choices %}
-                <div class="list-group-item d-flex" data-index="{%d i %}">
+                {% code
+                    type pair struct {
+                        i int
+                        v string
+                    }
+
+                    choices := make([]pair, len(p.Choices))
+
+                    for i, v := range p.Choices {
+                        choices[i] = pair{i: i, v: v}
+                    }
+
+                    rand.Shuffle(len(choices), func(i, j int) {
+                        choices[i], choices[j] = choices[j], choices[i]
+                    })
+                %}
+                {% for _, choice := range choices %}
+                <div class="list-group-item d-flex" data-index="{%d choice.i %}">
                     <div class="mr-1 align-self-center">
                         <span class="badge badge-secondary"></span>
                     </div>
-                    <span class="text flex-fill">{%s choice %}</span>
+                    <span class="text flex-fill">{%s choice.v %}</span>
                     <div class="ml-1 align-self-center">
                         <i class="fa fa-times close remove" onclick="removeVote(this)"></i>
                     </div>

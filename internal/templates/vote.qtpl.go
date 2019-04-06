@@ -3,6 +3,8 @@
 
 package templates
 
+import "math/rand"
+
 import (
 	qtio422016 "io"
 
@@ -109,16 +111,33 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
 
             <div id="vote-unchosen" class="vote-list list-group">
                 `)
-	for i, choice := range p.Choices {
+	type pair struct {
+		i int
+		v string
+	}
+
+	choices := make([]pair, len(p.Choices))
+
+	for i, v := range p.Choices {
+		choices[i] = pair{i: i, v: v}
+	}
+
+	rand.Shuffle(len(choices), func(i, j int) {
+		choices[i], choices[j] = choices[j], choices[i]
+	})
+
+	qw422016.N().S(`
+                `)
+	for _, choice := range choices {
 		qw422016.N().S(`
                 <div class="list-group-item d-flex" data-index="`)
-		qw422016.N().D(i)
+		qw422016.N().D(choice.i)
 		qw422016.N().S(`">
                     <div class="mr-1 align-self-center">
                         <span class="badge badge-secondary"></span>
                     </div>
                     <span class="text flex-fill">`)
-		qw422016.E().S(choice)
+		qw422016.E().S(choice.v)
 		qw422016.N().S(`</span>
                     <div class="ml-1 align-self-center">
                         <i class="fa fa-times close remove" onclick="removeVote(this)"></i>
