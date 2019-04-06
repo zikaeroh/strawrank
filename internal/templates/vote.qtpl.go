@@ -140,7 +140,7 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
 		qw422016.E().S(choice.v)
 		qw422016.N().S(`</span>
                     <div class="ml-1 align-self-center">
-                        <i class="fa fa-times close remove" onclick="removeVote(this)"></i>
+                        <i class="fa fa-times close remove" onclick="removeVote(this)" title="Remove"></i>
                     </div>
                 </div>
                 `)

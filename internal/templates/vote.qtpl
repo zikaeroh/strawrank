@@ -82,7 +82,7 @@ type VotePage struct {
                     </div>
                     <span class="text flex-fill">{%s choice.v %}</span>
                     <div class="ml-1 align-self-center">
-                        <i class="fa fa-times close remove" onclick="removeVote(this)"></i>
+                        <i class="fa fa-times close remove" onclick="removeVote(this)" title="Remove"></i>
                     </div>
                 </div>
                 {% endfor %}
