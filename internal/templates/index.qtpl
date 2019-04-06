@@ -69,13 +69,11 @@ type IndexPage struct {
 {% endfunc %}
 
 
-{% func (p *IndexPage) Choice() %}
-{% stripspace %}
+{% func (p *IndexPage) Choice() %}{% stripspace %}
     <div class="input-group mb-3">
         <input name="choice" class="form-control" type="text" placeholder="Choice" required maxlength="50">
         <div class="input-group-append remove">
             <button class="btn btn-warning" type="button" onclick="removeChoice(this); return false" tabindex="-1" title="Remove"><i class="fa fa-times"></i></button>
         </div>
     </div>
-{% endstripspace %}
-{% endfunc %}
+{% endstripspace %}{% endfunc %}

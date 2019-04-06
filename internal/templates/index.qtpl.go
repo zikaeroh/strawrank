@@ -160,11 +160,7 @@ func (p *IndexPage) PageScripts() string {
 }
 
 func (p *IndexPage) StreamChoice(qw422016 *qt422016.Writer) {
-	qw422016.N().S(`
-`)
 	qw422016.N().S(`<div class="input-group mb-3"><input name="choice" class="form-control" type="text" placeholder="Choice" required maxlength="50"><div class="input-group-append remove"><button class="btn btn-warning" type="button" onclick="removeChoice(this); return false" tabindex="-1" title="Remove"><i class="fa fa-times"></i></button></div></div>`)
-	qw422016.N().S(`
-`)
 }
 
 func (p *IndexPage) WriteChoice(qq422016 qtio422016.Writer) {
