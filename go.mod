@@ -3,7 +3,7 @@ module github.com/zikaeroh/strawrank
 go 1.12
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/davecgh/go-spew v1.1.1
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/google/go-cmp v0.2.0
 	github.com/gorilla/csrf v1.5.1

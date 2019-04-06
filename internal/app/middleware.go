@@ -21,14 +21,14 @@ func (a *App) pollIDCheck(paramName string) func(http.Handler) http.Handler {
 			idStr := chi.URLParam(r, paramName)
 			if idStr == "" {
 				logger.Debug("empty param", zap.String("paramName", paramName))
-				httpError(w, http.StatusNotFound)
+				http.NotFound(w, r)
 				return
 			}
 
 			ids, err := a.hid.DecodeWithError(idStr)
 			if err != nil {
 				logger.Debug("error decoding pollID", zap.String("idStr", idStr), zap.Error(err))
-				httpError(w, http.StatusNotFound)
+				http.NotFound(w, r)
 				return
 			}
 

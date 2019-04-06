@@ -10,9 +10,57 @@ type IndexPage struct {
 {% endfunc %}
 
 {% func (p *IndexPage) PageBody() %}
-    <div class="row">
-        <div class="col">
-            <h1>Wassap</h1>
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="mb-3">Create your own poll!</h1>
+
+        <p>
+            Type your question and choices below.
+            Voters will be able to choose and rank them as they prefer.
+            Ordering does not matter; they will be randomized on the voting page.
+        </p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <form method="POST">
+                <div class="form-group input-group-lg">
+                    <input name="question" class="form-control" type="text" placeholder="Type your question here" required>
+                </div>
+                
+                <br/>
+                <!-- Replace with padding -->
+                
+                <div id="choice-inputs">
+                    {%= p.Choice() %}
+                    {%= p.Choice() %}
+                    {%= p.Choice() %}
+                </div>
+                
+                <button class="btn btn-primary" type="submit">Submit</button>
+
+                {%s= p.CSRF %}
+            </form>
+
+            <button class="btn btn-primary" onclick="addAnother()">Add another</button>
         </div>
     </div>
+{% endfunc %}
+
+{% func (p *IndexPage) PageScripts() %}
+    <script>
+        var choiceInput = {%=q p.Choice() %};
+
+        function addAnother() {
+            $("#choice-inputs").append(choiceInput);
+        }
+    </script>
+{% endfunc %}
+
+
+{% func (p *IndexPage) Choice() %}
+{% stripspace %}
+    <div class="form-group">
+        <input name="choice" class="form-control" type="text" placeholder="Choice" required>
+    </div>
+{% endstripspace %}
 {% endfunc %}

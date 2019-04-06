@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/securecookie"
 	"github.com/speps/go-hashids"
@@ -60,6 +61,8 @@ func New(c *Config) (*App, error) {
 	r.Use(csrf.Protect(c.CookieKey, csrf.Secure(false)))
 
 	r.Get("/", a.handleIndex)
+	r.Post("/", a.handleIndexPost)
+
 	r.Get("/favicon.ico", http.NotFound) // TODO
 
 	r.Route("/{pollID}", func(r chi.Router) {
@@ -71,7 +74,7 @@ func New(c *Config) (*App, error) {
 			r.Post("/", a.handleVote)
 		})
 
-		r.Get("/r", a.handleResults)
+		r.With(middleware.NoCache).Get("/r", a.handleResults)
 	})
 
 	return a, nil
@@ -87,6 +90,23 @@ func (a *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		httpError(w, http.StatusBadRequest)
+		return
+	}
+
+	question := r.FormValue("question")
+	choices := r.Form["choice"]
+
+	_ = question
+	_ = choices
+
+	// TODO: store submission, redirect to results page
+
+	_, _ = w.Write([]byte("ok"))
+}
+
 func (a *App) handleVote(w http.ResponseWriter, r *http.Request) {
 	logger := ctxlog.FromRequest(r)
 
@@ -99,6 +119,11 @@ func (a *App) handleVote(w http.ResponseWriter, r *http.Request) {
 
 		if err := json.Unmarshal([]byte(votesStr), &votes); err != nil {
 			// TODO: Do someting in the UI instead.
+			httpError(w, http.StatusBadRequest)
+			return
+		}
+
+		if len(votes) == 0 {
 			httpError(w, http.StatusBadRequest)
 			return
 		}
@@ -129,8 +154,4 @@ func (a *App) handleResults(w http.ResponseWriter, r *http.Request) {
 	templates.WritePageTemplate(w, &templates.ResultsPage{
 		Name: "This is a test",
 	})
-}
-
-func httpError(w http.ResponseWriter, code int) {
-	http.Error(w, http.StatusText(code), code)
 }
