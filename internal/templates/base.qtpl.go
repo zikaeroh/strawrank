@@ -47,19 +47,21 @@ func StreamPageTemplate(qw422016 *qt422016.Writer, p Page) {
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top box-shadow">
-            <a class="navbar-brand" href="/">StrawRank</a>
-            `)
+            <div class="container">
+                <a class="navbar-brand" href="/">StrawRank</a>
+                `)
 	if _, ok := p.(*BasePage); !ok {
 		qw422016.N().S(`
-            <div class="nav-item">
-                <a class="nav-link active text-white" href="/">Create a new poll</a>
-            </div>
-            <div class="nav-item ml-auto">
-                <a class="nav-link text-white" href="/about">About</a>
-            </div>
-            `)
+                <div class="nav-item">
+                    <a class="nav-link active text-white" href="/">Create a new poll</a>
+                </div>
+                <div class="nav-item ml-auto">
+                    <a class="nav-link text-white" href="/about">About</a>
+                </div>
+                `)
 	}
 	qw422016.N().S(`
+            </div>
         </nav>
 
         <div class="container">

@@ -18,15 +18,17 @@
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top box-shadow">
-            <a class="navbar-brand" href="/">StrawRank</a>
-            {% if _, ok := p.(*BasePage); !ok %}
-            <div class="nav-item">
-                <a class="nav-link active text-white" href="/">Create a new poll</a>
+            <div class="container">
+                <a class="navbar-brand" href="/">StrawRank</a>
+                {% if _, ok := p.(*BasePage); !ok %}
+                <div class="nav-item">
+                    <a class="nav-link active text-white" href="/">Create a new poll</a>
+                </div>
+                <div class="nav-item ml-auto">
+                    <a class="nav-link text-white" href="/about">About</a>
+                </div>
+                {% endif %}
             </div>
-            <div class="nav-item ml-auto">
-                <a class="nav-link text-white" href="/about">About</a>
-            </div>
-            {% endif %}
         </nav>
 
         <div class="container">
