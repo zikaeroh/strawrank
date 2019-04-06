@@ -98,11 +98,12 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logger := ctxlog.FromRequest(r)
+
 	question := r.FormValue("question")
 	choices := r.Form["choice"]
 
-	_ = question
-	_ = choices
+	logger.Debug("posted new poll", zap.String("question", question), zap.Strings("choices", choices))
 
 	// TODO: store submission, redirect to results page
 
