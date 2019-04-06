@@ -39,6 +39,30 @@ func (p *IndexPage) PageTitle() string {
 	return qs422016
 }
 
+func (p *IndexPage) StreamPageMeta(qw422016 *qt422016.Writer) {
+	qw422016.N().S(`
+	<style>
+        #choice-inputs div:only-child .remove {
+            display: none;
+        }
+    </style>
+`)
+}
+
+func (p *IndexPage) WritePageMeta(qq422016 qtio422016.Writer) {
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	p.StreamPageMeta(qw422016)
+	qt422016.ReleaseWriter(qw422016)
+}
+
+func (p *IndexPage) PageMeta() string {
+	qb422016 := qt422016.AcquireByteBuffer()
+	p.WritePageMeta(qb422016)
+	qs422016 := string(qb422016.B)
+	qt422016.ReleaseByteBuffer(qb422016)
+	return qs422016
+}
+
 func (p *IndexPage) StreamPageBody(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
     <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
@@ -55,19 +79,13 @@ func (p *IndexPage) StreamPageBody(qw422016 *qt422016.Writer) {
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-6">
+        <div class="col-8">
             <form method="POST" autocomplete="off">
-                <div class="form-group input-group-lg">
-                    <input name="question" class="form-control" type="text" placeholder="Type your question here" required>
+                <div class="form-group input-group-lg mb-5">
+                    <input name="question" class="form-control" type="text" placeholder="Type your question here" required maxlength="100">
                 </div>
                 
-                <br/>
-                <!-- Replace with padding -->
-                
                 <div id="choice-inputs">
-                    `)
-	p.StreamChoice(qw422016)
-	qw422016.N().S(`
                     `)
 	p.StreamChoice(qw422016)
 	qw422016.N().S(`
@@ -78,7 +96,7 @@ func (p *IndexPage) StreamPageBody(qw422016 *qt422016.Writer) {
 
                 <div class="form-group d-flex">
                     <button class="btn btn-primary mr-auto" type="submit">Submit</button>
-                    <button class="btn btn-secondary ml-auto" onclick="addAnother(); return false">Add another</button>
+                    <button class="btn btn-secondary ml-auto" onclick="addAnother(); return false">Add another choice</button>
                 </div>
 
                 `)
@@ -119,6 +137,10 @@ func (p *IndexPage) StreamPageScripts(qw422016 *qt422016.Writer) {
         function addAnother() {
             $("#choice-inputs").append(choiceInput);
         }
+
+        function removeChoice(e) {
+            $(e).parent().parent().remove();
+        }
     </script>
 `)
 }
@@ -140,7 +162,7 @@ func (p *IndexPage) PageScripts() string {
 func (p *IndexPage) StreamChoice(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
 `)
-	qw422016.N().S(`<div class="form-group"><input name="choice" class="form-control" type="text" placeholder="Choice" required></div>`)
+	qw422016.N().S(`<div class="input-group mb-3"><input name="choice" class="form-control" type="text" placeholder="Choice" required maxlength="50"><div class="input-group-append remove"><button class="btn btn-warning" type="button" onclick="removeChoice(this); return false"><i class="fa fa-times"></i></button></div></div>`)
 	qw422016.N().S(`
 `)
 }
