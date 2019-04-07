@@ -56,10 +56,8 @@ type IndexPage struct {
 
 {% func (p *IndexPage) PageScripts() %}
     <script>
-        var choiceInput = {%=q p.Choice() %};
-
         function addAnother() {
-            $("#choice-inputs").append(choiceInput);
+            $("#choice-inputs").append("{%=j p.Choice() %}");
         }
 
         function removeChoice(e) {

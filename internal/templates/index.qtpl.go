@@ -125,17 +125,15 @@ func (p *IndexPage) PageBody() string {
 func (p *IndexPage) StreamPageScripts(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
     <script>
-        var choiceInput = `)
+        function addAnother() {
+            $("#choice-inputs").append("`)
 	{
 		qb422016 := qt422016.AcquireByteBuffer()
 		p.WriteChoice(qb422016)
-		qw422016.N().QZ(qb422016.B)
+		qw422016.N().JZ(qb422016.B)
 		qt422016.ReleaseByteBuffer(qb422016)
 	}
-	qw422016.N().S(`;
-
-        function addAnother() {
-            $("#choice-inputs").append(choiceInput);
+	qw422016.N().S(`");
         }
 
         function removeChoice(e) {
