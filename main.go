@@ -18,7 +18,7 @@ import (
 var args = struct {
 	Addr string `long:"addr" env:"SR_ADDR" description:"Address to listen at"`
 
-	CookieKey string `long:"cookie-key" env:"SR_COOKIE_KEY" description:"Cookie encryption key, hex encoded" required:"true"`
+	CookieKey string `long:"cookie-key" env:"SR_COOKIE_KEY" description:"Cookie encryption key, hex encoded"`
 
 	HIDMinLength int    `long:"hid-min-length" env:"SR_HID_MIN_LENGTH" description:"HashID minimum length"`
 	HIDSalt      string `long:"hid-salt" env:"SR_HID_SALT" description:"HashID salt"`
@@ -26,6 +26,7 @@ var args = struct {
 	Debug bool `long:"debug" env:"SR_DEBUG" description:"Enables debug mode, including extra routes and logging"`
 }{
 	Addr:         ":3000",
+	CookieKey:    "612D33322D627974652D6C6F6E672D6B65792D676F65732D68657265", // a-32-byte-long-key-goes-here
 	HIDMinLength: 5,
 	HIDSalt:      "PJSalt",
 }
