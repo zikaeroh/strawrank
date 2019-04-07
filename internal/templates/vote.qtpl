@@ -82,7 +82,7 @@ type VotePage struct {
                     </div>
                     <span class="text flex-fill">{%s choice.v %}</span>
                     <div class="ml-1 align-self-center">
-                        <i class="fa fa-times close remove" onclick="removeVote(this)" title="Remove"></i>
+                        <i class="fa fa-times close remove" onclick="removeVote(this)" data-toggle="tooltip" data-placement="right" title="Remove"></i>
                     </div>
                 </div>
                 {% endfor %}
@@ -122,7 +122,9 @@ type VotePage struct {
         };
 
         function removeVote(e) {
+            var tooltip = $(e).attr("aria-describedby");
             $(e).parent().parent().appendTo("#vote-unchosen");
+            $("#"+tooltip).remove();
             count--;
             updateSubmit();
             onChange();
@@ -142,6 +144,10 @@ type VotePage struct {
                 $("#votes").val(JSON.stringify(votes));
                 return true;
             })
+
+            $(document).ready(function() {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
         });
 
         new Sortable($("#vote-unchosen")[0], {

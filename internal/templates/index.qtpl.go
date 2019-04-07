@@ -95,7 +95,10 @@ func (p *IndexPage) StreamPageBody(qw422016 *qt422016.Writer) {
                 </div>
 
                 <div class="form-group d-flex">
-                    <button class="btn btn-primary mr-auto" type="submit">Submit</button>
+                    <button class="btn btn-primary" id="submit-button" type="submit">Submit</button>
+                    <div class="ml-3 mr-auto d-flex invisible" id="submit-warning">
+                        <span class="text-danger justify-content-center align-self-center">More than one choice must be specified.</span>
+                    </div>
                     <button class="btn btn-secondary ml-auto" onclick="addAnother(); return false">Add another choice</button>
                 </div>
 
@@ -125,6 +128,18 @@ func (p *IndexPage) PageBody() string {
 func (p *IndexPage) StreamPageScripts(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
     <script>
+        var count = 2;
+
+        var updateSubmit = function() {
+            if (count < 2) {
+                $("#submit-button").attr("disabled", true);
+                $("#submit-warning").removeClass("invisible");
+            } else {
+                $("#submit-button").removeAttr("disabled");
+                $("#submit-warning").addClass("invisible");
+            }
+        };
+
         function addAnother() {
             $("#choice-inputs").append("`)
 	{
@@ -134,11 +149,21 @@ func (p *IndexPage) StreamPageScripts(qw422016 *qt422016.Writer) {
 		qt422016.ReleaseByteBuffer(qb422016)
 	}
 	qw422016.N().S(`");
+            count++;
+            updateSubmit();
         }
 
         function removeChoice(e) {
+            var tooltip = $(e).attr("aria-describedby");
             $(e).parent().parent().remove();
+            $("#"+tooltip).remove();
+            count--;
+            updateSubmit();
         }
+
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
     </script>
 `)
 }
@@ -158,7 +183,7 @@ func (p *IndexPage) PageScripts() string {
 }
 
 func (p *IndexPage) StreamChoice(qw422016 *qt422016.Writer) {
-	qw422016.N().S(`<div class="input-group mb-3"><input name="choice" class="form-control" type="text" placeholder="Choice" required maxlength="50"><div class="input-group-append remove"><button class="btn btn-warning" type="button" onclick="removeChoice(this); return false" tabindex="-1" title="Remove"><i class="fa fa-times"></i></button></div></div>`)
+	qw422016.N().S(`<div class="input-group mb-3"><input name="choice" class="form-control" type="text" placeholder="Choice" required maxlength="50"><div class="input-group-append remove"><button class="btn btn-warning" type="button" onclick="removeChoice(this); return false" tabindex="-1" data-toggle="tooltip" data-placement="right" title="Remove"><i class="fa fa-times"></i></button></div></div>`)
 }
 
 func (p *IndexPage) WriteChoice(qq422016 qtio422016.Writer) {

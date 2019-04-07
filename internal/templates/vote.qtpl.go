@@ -140,7 +140,7 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
 		qw422016.E().S(choice.v)
 		qw422016.N().S(`</span>
                     <div class="ml-1 align-self-center">
-                        <i class="fa fa-times close remove" onclick="removeVote(this)" title="Remove"></i>
+                        <i class="fa fa-times close remove" onclick="removeVote(this)" data-toggle="tooltip" data-placement="right" title="Remove"></i>
                     </div>
                 </div>
                 `)
@@ -200,7 +200,9 @@ func (p *VotePage) StreamPageScripts(qw422016 *qt422016.Writer) {
         };
 
         function removeVote(e) {
+            var tooltip = $(e).attr("aria-describedby");
             $(e).parent().parent().appendTo("#vote-unchosen");
+            $("#"+tooltip).remove();
             count--;
             updateSubmit();
             onChange();
@@ -220,6 +222,10 @@ func (p *VotePage) StreamPageScripts(qw422016 *qt422016.Writer) {
                 $("#votes").val(JSON.stringify(votes));
                 return true;
             })
+
+            $(document).ready(function() {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
         });
 
         new Sortable($("#vote-unchosen")[0], {
