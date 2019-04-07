@@ -7,6 +7,13 @@ go:
 env:
   - GO111MODULE=on
 
+services:
+  - docker
+
+cache:
+  directories:
+    - $GOPATH/pkg
+
 before_install:
   - go get -v -u github.com/mattn/goveralls
 script:
