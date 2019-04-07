@@ -17,4 +17,5 @@ cache:
 before_install:
   - go get -v -u github.com/mattn/goveralls
 script:
-  - $GOPATH/bin/goveralls -service=travis-ci -race -covermode=atomic
+  - go test -race -covermode=atomic -coverprofile=cover.out ./...
+  - $GOPATH/bin/goveralls -service=travis-ci -coverprofile=cover.out
