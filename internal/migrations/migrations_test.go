@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/dhui/dktest"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -20,7 +21,13 @@ func Test(t *testing.T) {
 		t.Skip("requires starting a docker container")
 	}
 
-	dktest.Run(t, "postgres:latest", dktest.Options{PortRequired: true, ReadyFunc: postgresReady},
+	opts := dktest.Options{
+		PortRequired:   true,
+		ReadyFunc:      postgresReady,
+		CleanupTimeout: time.Second,
+	}
+
+	dktest.Run(t, "zikaeroh/postgres-initialized", opts,
 		func(t *testing.T, c dktest.ContainerInfo) {
 			ip, port, err := c.FirstPort()
 			assert.NilError(t, err)
