@@ -2,17 +2,22 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/hex"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/jessevdk/go-flags"
 	"github.com/joho/godotenv"
 	"github.com/zikaeroh/strawrank/internal/app"
+	"github.com/zikaeroh/strawrank/internal/migrations"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	_ "github.com/lib/pq" // For PostgreSQL support.
 )
 
 var args = struct {
@@ -22,6 +27,10 @@ var args = struct {
 
 	HIDMinLength int    `long:"hid-min-length" env:"SR_HID_MIN_LENGTH" description:"HashID minimum length"`
 	HIDSalt      string `long:"hid-salt" env:"SR_HID_SALT" description:"HashID salt"`
+
+	Database     string `long:"database" env:"SR_DATABASE" description:"Database connection string" required:"true"`
+	MigrateUp    bool   `long:"migrate-up" env:"SR_MIGRATE_UP" description:"Migrate the database up before starting"`
+	MigrateReset bool   `long:"migrate-reset" env:"SR_MIGRATE_RESET" description:"Reset the database before starting"`
 
 	Debug bool `long:"debug" env:"SR_DEBUG" description:"Enables debug mode, including extra routes and logging"`
 }{
@@ -49,6 +58,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if args.MigrateUp && args.MigrateReset {
+		fmt.Fprintf(os.Stderr, "migrate-up and migrate-reset cannot both be set")
+		os.Exit(1)
+	}
+
 	var logConfig zap.Config
 
 	if args.Debug {
@@ -68,11 +82,38 @@ func main() {
 	undoStdlog := zap.RedirectStdLog(logger)
 	defer undoStdlog()
 
+	db, err := sql.Open("postgres", args.Database)
+	if err != nil {
+		logger.Fatal("error opening database connection", zap.Error(err))
+	}
+	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		logger.Fatal("error pinging database connection", zap.Error(err))
+	}
+
+	debugf := func(format string, v ...interface{}) {
+		logger.Sugar().Debugf(strings.TrimSpace(format), v...)
+	}
+
+	switch {
+	case args.MigrateUp:
+		err = migrations.Up(db, debugf)
+	case args.MigrateReset:
+		err = migrations.Reset(db, debugf)
+	}
+
+	if err != nil {
+		logger.Fatal("error migrating database", zap.Error(err))
+	}
+
 	a, err := app.New(&app.Config{
 		Logger:       logger,
+		DB:           db,
 		CookieKey:    cookieKey,
 		HIDMinLength: args.HIDMinLength,
 		HIDSalt:      args.HIDSalt,
+		Debug:        args.Debug,
 	})
 	if err != nil {
 		logger.Fatal("creating app", zap.Error(err))

@@ -98,5 +98,5 @@ func (l loggerFunc) Printf(format string, v ...interface{}) {
 }
 
 func (l loggerFunc) Verbose() bool {
-	return true
+	return false
 }

@@ -15,9 +15,11 @@ require (
 	github.com/gorilla/mux v1.7.1 // indirect
 	github.com/gorilla/securecookie v1.1.1
 	github.com/jessevdk/go-flags v1.4.0
+	github.com/jmoiron/sqlx v1.2.0
 	github.com/joho/godotenv v1.3.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/lib/pq v1.0.0
+	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/mjibson/esc v0.2.0
 	github.com/rs/xid v1.2.1
 	github.com/sirupsen/logrus v1.4.1 // indirect
@@ -31,6 +33,7 @@ require (
 	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	golang.org/x/tools v0.0.0-20190407030857-0fdf0c73855b // indirect
+	google.golang.org/appengine v1.5.0 // indirect
 	google.golang.org/genproto v0.0.0-20190404172233-64821d5d2107 // indirect
 	google.golang.org/grpc v1.19.1 // indirect
 	gotest.tools v2.2.0+incompatible

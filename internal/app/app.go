@@ -1,13 +1,18 @@
 package app
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/securecookie"
+	"github.com/jmoiron/sqlx"
+	"github.com/rs/xid"
 	"github.com/speps/go-hashids"
 	"github.com/zikaeroh/strawrank/internal/app/mid"
 	"github.com/zikaeroh/strawrank/internal/ctxlog"
@@ -18,22 +23,32 @@ import (
 type Config struct {
 	Logger *zap.Logger
 
+	DB *sql.DB
+
 	CookieKey []byte
 
 	HIDMinLength int
 	HIDSalt      string
+
+	Debug bool
 }
 
 type App struct {
 	r   chi.Router
+	db  *sqlx.DB
 	sc  *securecookie.SecureCookie
 	hid *hashids.HashID
 }
 
 func New(c *Config) (*App, error) {
+	if c.DB == nil {
+		return nil, errors.New("db was nil") // TODO: make into a value
+	}
+
 	var err error
 
 	a := &App{
+		db: sqlx.NewDb(c.DB, "postgres"),
 		sc: securecookie.New(c.CookieKey, nil),
 	}
 
@@ -78,6 +93,12 @@ func New(c *Config) (*App, error) {
 
 		r.With(middleware.NoCache).Get("/r", a.handleResults)
 	})
+
+	if c.Debug {
+		r.Route("/debug", func(r chi.Router) {
+			r.Get("/database", a.handleDebugDatabase)
+		})
+	}
 
 	return a, nil
 }
@@ -170,4 +191,59 @@ func (a *App) handleResults(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleAbout(w http.ResponseWriter, r *http.Request) {
 	templates.WritePageTemplate(w, &templates.AboutPage{})
+}
+
+func (a *App) handleDebugDatabase(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "polls:")
+
+	type poll struct {
+		ID       int
+		Question string
+		Choices  []string
+	}
+
+	rows, err := a.db.Queryx(`SELECT * FROM polls`)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for rows.Next() {
+		var p poll
+
+		if err := rows.StructScan(&p); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprintf(w, "%#v", p)
+	}
+
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "ballots:")
+
+	type ballot struct {
+		ID      int
+		PollID  int    `db:"poll_id"`
+		UserXID xid.ID `db:"user_xid"`
+		UserIP  string `db:"user_ip"`
+		Votes   []int
+	}
+
+	rows, err = a.db.Queryx(`SELECT * FROM ballots`)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for rows.Next() {
+		var b ballot
+
+		if err := rows.StructScan(&b); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprintf(w, "%#v", b)
+	}
 }

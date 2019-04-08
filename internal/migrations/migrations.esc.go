@@ -223,13 +223,13 @@ JTcAAAA=
 	"/20190406195527_initial_schema.up.sql": {
 		name:    "20190406195527_initial_schema.up.sql",
 		local:   "20190406195527_initial_schema.up.sql",
-		size:    310,
-		modtime: 1554610647,
+		size:    319,
+		modtime: 1554695449,
 		compressed: `
-H4sIAAAAAAAC/6SPQWqGMBSE9znFLH+hN3AV9SmhmpaYLkIp0mqggWBsE4vHL2oL0m23H2/efFNQI2TO
-WKmIa4LmRUtYgvcRNwYAboKbExqSpLimCoVBRTV/ajV4D1GR1EIbPCrRcWVwT+buCH6sNiYXZiS7pRON
-78GNNh7k+YVlf3vfXr0P6d/Nu/7wk1ZUkyJZUn+uurkpO6/WaD+HzU0XvwO55UK+QrJxf/Sr+9B1Quff
-AQAA//+YvRorNgEAAA==
+H4sIAAAAAAAC/6SPwWrDMBBE7/qKOSbQP8hJjjdBVFaKsjmIUkJrCyoQllvJxZ9fbLdgeu11Zmd5r6Kz
+MgchjpYkE1hWmjCkGDN2AgBCh9AXnMmQlUw1KoeaTvKmGfIKVZNhxQ5PVjXSOjySe1iGH6PPJaQexU8F
+5sIwN63Xrn1PofV5qZ5fxP4vwNtrjKn8G2H2uP+sLZ3IkjnSddXbhW6/Xo3Zf96n0C00mygMm+QrFZ/n
+R7+4l6ZRfPgOAAD//7dATZ8/AQAA
 `,
 	},
 
