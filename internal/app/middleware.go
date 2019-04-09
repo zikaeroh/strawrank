@@ -32,7 +32,11 @@ func (a *App) pollIDCheck(paramName string) func(http.Handler) http.Handler {
 				return
 			}
 
-			// TODO: check for poll and 404 if not found (with friendly page)
+			if len(ids) == 0 {
+				logger.Debug("ids had a zero length", zap.String("idStr", idStr))
+				http.NotFound(w, r)
+				return
+			}
 
 			ctx = context.WithValue(ctx, pollIDKey{}, ids)
 			ctx, logger = ctxlog.FromContextWith(ctx, zap.Ints("pollID", ids))
@@ -43,7 +47,9 @@ func (a *App) pollIDCheck(paramName string) func(http.Handler) http.Handler {
 	}
 }
 
-func getPollID(r *http.Request) []int {
+// getPollIDs gets the poll ID slice decoded from the request. It is guaranteed
+// to not be empty.
+func getPollIDs(r *http.Request) []int {
 	id := r.Context().Value(pollIDKey{})
 	if id == nil {
 		panic("failed to get poll ID")

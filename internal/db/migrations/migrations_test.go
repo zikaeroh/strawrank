@@ -11,7 +11,7 @@ import (
 	"github.com/dhui/dktest"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/lib/pq"
-	"github.com/zikaeroh/strawrank/internal/migrations"
+	"github.com/zikaeroh/strawrank/internal/db/migrations"
 	"gotest.tools/assert"
 	"gotest.tools/assert/cmp"
 )

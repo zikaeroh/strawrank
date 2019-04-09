@@ -223,13 +223,13 @@ JTcAAAA=
 	"/20190406195527_initial_schema.up.sql": {
 		name:    "20190406195527_initial_schema.up.sql",
 		local:   "20190406195527_initial_schema.up.sql",
-		size:    319,
-		modtime: 1554695449,
+		size:    524,
+		modtime: 1554785313,
 		compressed: `
-H4sIAAAAAAAC/6SPwWrDMBBE7/qKOSbQP8hJjjdBVFaKsjmIUkJrCyoQllvJxZ9fbLdgeu11Zmd5r6Kz
-MgchjpYkE1hWmjCkGDN2AgBCh9AXnMmQlUw1KoeaTvKmGfIKVZNhxQ5PVjXSOjySe1iGH6PPJaQexU8F
-5sIwN63Xrn1PofV5qZ5fxP4vwNtrjKn8G2H2uP+sLZ3IkjnSddXbhW6/Xo3Zf96n0C00mygMm+QrFZ/n
-R7+4l6ZRfPgOAAD//7dATZ8/AQAA
+H4sIAAAAAAAC/9SRwWrDMBBE7/6KOTrQP8hJjjdB1JaLolBMKca1BBU4kRptSj6/xGlLcE895jrDG3Z2
+CtpItcyylSZhCEYUFSGGcUzIMwDwFv7A2JAiLQyVKFqUtBa7ykBsIUtSRpoWT1rWQrd4pPZhAoej69nZ
+rmew37vE/T7+kqp5zhdQjYHaVdUVOEX7P+Dj5BL7cAC7M8+84T34waXJennNFvOKb/04Br6Dkpctuu/7
+NK1Jk1rR9jpR7u2f/OSO3dnbqfiN5OON8hnYpUviz2eaupZm+RUAAP//OZR0+gwCAAA=
 `,
 	},
 

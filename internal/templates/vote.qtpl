@@ -4,13 +4,13 @@
 type VotePage struct {
     BasePage
     CSRF string
-    Name string
+    Question string
     Choices []string
 }
 %}
 
 {% func (p *VotePage) PageTitle() %}
-	StrawRank - Vote - {%s p.Name %}
+	StrawRank - Vote - {%s p.Question %}
 {% endfunc %}
 
 {% func (p *VotePage) PageMeta() %}
@@ -48,7 +48,7 @@ type VotePage struct {
 
 {% func (p *VotePage) PageBody() %}
     <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-        <h1 class="mb-3">{%s p.Name %}</h1>
+        <h1 class="mb-3">{%s p.Question %}</h1>
 
         <p>To vote, drag your choices from the left to the right.</p>
         <p>Order by preference. Not all options need to be selected.</p>

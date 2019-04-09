@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"database/sql"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,8 +14,9 @@ import (
 
 	"github.com/jessevdk/go-flags"
 	"github.com/joho/godotenv"
+	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/zikaeroh/strawrank/internal/app"
-	"github.com/zikaeroh/strawrank/internal/migrations"
+	"github.com/zikaeroh/strawrank/internal/db/migrations"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -28,9 +31,10 @@ var args = struct {
 	HIDMinLength int    `long:"hid-min-length" env:"SR_HID_MIN_LENGTH" description:"HashID minimum length"`
 	HIDSalt      string `long:"hid-salt" env:"SR_HID_SALT" description:"HashID salt"`
 
-	Database     string `long:"database" env:"SR_DATABASE" description:"Database connection string" required:"true"`
-	MigrateUp    bool   `long:"migrate-up" env:"SR_MIGRATE_UP" description:"Migrate the database up before starting"`
-	MigrateReset bool   `long:"migrate-reset" env:"SR_MIGRATE_RESET" description:"Reset the database before starting"`
+	Database      string `long:"database" env:"SR_DATABASE" description:"Database connection string" required:"true"`
+	MigrateUp     bool   `long:"migrate-up" env:"SR_MIGRATE_UP" description:"Migrate the database up before starting"`
+	MigrateReset  bool   `long:"migrate-reset" env:"SR_MIGRATE_RESET" description:"Reset the database before starting"`
+	DatabaseDebug bool   `long:"database-debug" env:"SR_DATABASE_DEBUG" description:"Enable SQLBoiler debug logging"`
 
 	Debug bool `long:"debug" env:"SR_DEBUG" description:"Enables debug mode, including extra routes and logging"`
 }{
@@ -77,6 +81,28 @@ func main() {
 		panic(err)
 	}
 
+	if args.DatabaseDebug {
+		r, w := io.Pipe()
+
+		boil.DebugMode = true
+		boil.DebugWriter = w
+
+		go func() {
+			scanner := bufio.NewScanner(r)
+
+			for scanner.Scan() {
+				line := scanner.Text()
+				line = strings.TrimSpace(line)
+
+				if line == "" {
+					continue
+				}
+
+				logger.Debug("sqlboiler: " + line)
+			}
+		}()
+	}
+
 	logger.Info("starting")
 
 	undoStdlog := zap.RedirectStdLog(logger)
@@ -93,7 +119,7 @@ func main() {
 	}
 
 	debugf := func(format string, v ...interface{}) {
-		logger.Sugar().Debugf(strings.TrimSpace(format), v...)
+		logger.Sugar().Debugf("migrate: "+strings.TrimSpace(format), v...)
 	}
 
 	switch {

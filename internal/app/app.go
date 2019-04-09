@@ -7,15 +7,18 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/securecookie"
-	"github.com/jmoiron/sqlx"
-	"github.com/rs/xid"
 	"github.com/speps/go-hashids"
+	"github.com/volatiletech/null"
+	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/queries/qm"
 	"github.com/zikaeroh/strawrank/internal/app/mid"
 	"github.com/zikaeroh/strawrank/internal/ctxlog"
+	"github.com/zikaeroh/strawrank/internal/db/models"
 	"github.com/zikaeroh/strawrank/internal/templates"
 	"go.uber.org/zap"
 )
@@ -35,7 +38,7 @@ type Config struct {
 
 type App struct {
 	r   chi.Router
-	db  *sqlx.DB
+	db  *sql.DB
 	sc  *securecookie.SecureCookie
 	hid *hashids.HashID
 }
@@ -48,7 +51,7 @@ func New(c *Config) (*App, error) {
 	var err error
 
 	a := &App{
-		db: sqlx.NewDb(c.DB, "postgres"),
+		db: c.DB,
 		sc: securecookie.New(c.CookieKey, nil),
 	}
 
@@ -119,7 +122,8 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger := ctxlog.FromRequest(r)
+	ctx := r.Context()
+	logger := ctxlog.FromContext(ctx)
 
 	question := r.FormValue("question")
 	choices := r.Form["choice"]
@@ -128,7 +132,18 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: store submission, redirect to results page
 
-	p, err := a.hid.Encode([]int{1})
+	poll := models.Poll{
+		Question: question,
+		Choices:  choices,
+	}
+
+	if err := poll.Insert(ctx, a.db, boil.Infer()); err != nil {
+		logger.Error("error inserting poll", zap.Error(err))
+		httpError(w, http.StatusInternalServerError)
+		return
+	}
+
+	p, err := a.hid.Encode([]int{poll.ID})
 	if err != nil {
 		httpError(w, http.StatusInternalServerError)
 		return
@@ -138,31 +153,40 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleVote(w http.ResponseWriter, r *http.Request) {
-	// pollIDs := getPollID(r)
-	// userID := getUserID(r)
+	ctx := r.Context()
+	logger := ctxlog.FromContext(ctx)
+
+	pollID := getPollIDs(r)[0]
+
+	poll, err := models.FindPoll(ctx, a.db, pollID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.NotFound(w, r)
+			return
+		}
+
+		logger.Error("error finding poll", zap.Error(err))
+		httpError(w, http.StatusInternalServerError)
+		return
+	}
 
 	templates.WritePageTemplate(w, &templates.VotePage{
-		CSRF: string(csrf.TemplateField(r)),
-		Name: "What should we do today?",
-		Choices: []string{
-			"This is a super long choice that likely wraps and that's not so good. Let's make it even longer, shall we?",
-			"B",
-			"C",
-		},
+		CSRF:     string(csrf.TemplateField(r)),
+		Question: poll.Question,
+		Choices:  poll.Choices,
 	})
 }
 
 func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
-	logger := ctxlog.FromRequest(r)
+	ctx := r.Context()
+	logger := ctxlog.FromContext(ctx)
 
-	// pollIDs := getPollID(r)
-	// userID := getUserID(r)
+	pollID := getPollIDs(r)[0]
+	userID := getUserID(r)
 
-	votesStr := r.FormValue("votes")
-	var votes []int
+	var votes []int64
 
-	if err := json.Unmarshal([]byte(votesStr), &votes); err != nil {
-		// TODO: Do someting in the UI instead.
+	if err := json.Unmarshal([]byte(r.FormValue("votes")), &votes); err != nil {
 		httpError(w, http.StatusBadRequest)
 		return
 	}
@@ -172,20 +196,47 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.Debug("posted vote", zap.Ints("votes", votes))
+	logger.Debug("posted vote", zap.Int64s("votes", votes))
+
+	ballot := models.Ballot{
+		PollID:  pollID,
+		UserXID: null.StringFrom(userID.String()),
+		Votes:   votes,
+	}
+
+	if err := ballot.Insert(ctx, a.db, boil.Infer()); err != nil {
+		logger.Error("error inserting ballot", zap.Error(err))
+		httpError(w, http.StatusInternalServerError)
+		return
+	}
 
 	// TODO: tally votes
 
 	// Post/Redirect/Get
 	http.Redirect(w, r, r.RequestURI+"/r", http.StatusSeeOther)
-
 }
 
 func (a *App) handleResults(w http.ResponseWriter, r *http.Request) {
-	// pollIDs := getPollID(r)
+	ctx := r.Context()
+	logger := ctxlog.FromContext(ctx)
+
+	pollID := getPollIDs(r)[0]
+
+	poll, err := models.Polls(models.PollWhere.ID.EQ(pollID), qm.Load(models.PollRels.Ballots)).One(ctx, a.db)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.NotFound(w, r)
+			return
+		}
+
+		logger.Error("error finding poll", zap.Error(err))
+		httpError(w, http.StatusInternalServerError)
+		return
+	}
 
 	templates.WritePageTemplate(w, &templates.ResultsPage{
-		Name: "This is a test",
+		Question: poll.Question,
+		Content:  spew.Sdump(poll.R.Ballots),
 	})
 }
 
@@ -194,56 +245,41 @@ func (a *App) handleAbout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleDebugDatabase(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	fmt.Fprintln(w, "polls:")
 
-	type poll struct {
-		ID       int
-		Question string
-		Choices  []string
-	}
-
-	rows, err := a.db.Queryx(`SELECT * FROM polls`)
+	polls, err := models.Polls().All(ctx, a.db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	for rows.Next() {
-		var p poll
+	enc := json.NewEncoder(w)
 
-		if err := rows.StructScan(&p); err != nil {
+	for _, poll := range polls {
+		if err := enc.Encode(poll); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		fmt.Fprintf(w, "%#v", p)
+		fmt.Fprintln(w)
 	}
 
-	fmt.Fprintln(w)
 	fmt.Fprintln(w, "ballots:")
 
-	type ballot struct {
-		ID      int
-		PollID  int    `db:"poll_id"`
-		UserXID xid.ID `db:"user_xid"`
-		UserIP  string `db:"user_ip"`
-		Votes   []int
-	}
-
-	rows, err = a.db.Queryx(`SELECT * FROM ballots`)
+	ballots, err := models.Ballots().All(ctx, a.db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	for rows.Next() {
-		var b ballot
-
-		if err := rows.StructScan(&b); err != nil {
+	for _, ballot := range ballots {
+		if err := enc.Encode(ballot); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		fmt.Fprintf(w, "%#v", b)
+		fmt.Fprintln(w)
 	}
 }

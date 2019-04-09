@@ -15,14 +15,15 @@ var (
 )
 
 type ResultsPage struct {
-	Name string
 	BasePage
+	Question string
+	Content  string
 }
 
 func (p *ResultsPage) StreamPageTitle(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
 	StrawRank - Results - `)
-	qw422016.E().S(p.Name)
+	qw422016.E().S(p.Question)
 	qw422016.N().S(`
 `)
 }
@@ -45,7 +46,11 @@ func (p *ResultsPage) StreamPageBody(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
     <div class="row">
         <div class="col">
-            <h1>Wassap</h1>
+            <pre>
+`)
+	qw422016.E().S(p.Content)
+	qw422016.N().S(`
+            </pre>
         </div>
     </div>
 `)

@@ -18,15 +18,15 @@ var (
 
 type VotePage struct {
 	BasePage
-	CSRF    string
-	Name    string
-	Choices []string
+	CSRF     string
+	Question string
+	Choices  []string
 }
 
 func (p *VotePage) StreamPageTitle(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
 	StrawRank - Vote - `)
-	qw422016.E().S(p.Name)
+	qw422016.E().S(p.Question)
 	qw422016.N().S(`
 `)
 }
@@ -98,7 +98,7 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
     <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
         <h1 class="mb-3">`)
-	qw422016.E().S(p.Name)
+	qw422016.E().S(p.Question)
 	qw422016.N().S(`</h1>
 
         <p>To vote, drag your choices from the left to the right.</p>
