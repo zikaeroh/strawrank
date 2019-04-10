@@ -21,6 +21,7 @@ before_install:
   - docker pull zikaeroh/postgres-initialized
   - sudo service postgresql stop
   - docker run -d -p 127.0.0.1:5432:5432 zikaeroh/postgres-initialized
+  - while ! curl http://localhost:5432 2>&1 | grep '52'; do sleep 1; done
   - migrate -database 'postgres://postgres:mysecretpassword@localhost:5432/postgres?sslmode=disable' -path internal/db/migrations up
 
 script:
