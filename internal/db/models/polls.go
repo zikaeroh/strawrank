@@ -24,7 +24,7 @@ import (
 
 // Poll is an object representing the database table.
 type Poll struct {
-	ID        int               `boil:"id" json:"id" toml:"id" yaml:"id"`
+	ID        int64             `boil:"id" json:"id" toml:"id" yaml:"id"`
 	CreatedAt time.Time         `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt time.Time         `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	Question  string            `boil:"question" json:"question" toml:"question" yaml:"question"`
@@ -83,13 +83,13 @@ func (w whereHelpertypes_StringArray) GTE(x types.StringArray) qm.QueryMod {
 }
 
 var PollWhere = struct {
-	ID        whereHelperint
+	ID        whereHelperint64
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
 	Question  whereHelperstring
 	Choices   whereHelpertypes_StringArray
 }{
-	ID:        whereHelperint{field: `id`},
+	ID:        whereHelperint64{field: `id`},
 	CreatedAt: whereHelpertime_Time{field: `created_at`},
 	UpdatedAt: whereHelpertime_Time{field: `updated_at`},
 	Question:  whereHelperstring{field: `question`},
@@ -384,7 +384,7 @@ func Polls(mods ...qm.QueryMod) pollQuery {
 
 // FindPoll retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindPoll(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Poll, error) {
+func FindPoll(ctx context.Context, exec boil.ContextExecutor, iD int64, selectCols ...string) (*Poll, error) {
 	pollObj := &Poll{}
 
 	sel := "*"
@@ -840,7 +840,7 @@ func (o *PollSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) er
 }
 
 // PollExists checks if the Poll row exists.
-func PollExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
+func PollExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
 	sql := "select exists(select 1 from \"polls\" where \"id\"=$1 limit 1)"
 

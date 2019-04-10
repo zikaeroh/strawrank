@@ -25,10 +25,10 @@ import (
 
 // Ballot is an object representing the database table.
 type Ballot struct {
-	ID        int              `boil:"id" json:"id" toml:"id" yaml:"id"`
+	ID        int64            `boil:"id" json:"id" toml:"id" yaml:"id"`
 	CreatedAt time.Time        `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt time.Time        `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	PollID    int              `boil:"poll_id" json:"poll_id" toml:"poll_id" yaml:"poll_id"`
+	PollID    int64            `boil:"poll_id" json:"poll_id" toml:"poll_id" yaml:"poll_id"`
 	UserXID   null.String      `boil:"user_xid" json:"user_xid,omitempty" toml:"user_xid" yaml:"user_xid,omitempty"`
 	UserIP    null.String      `boil:"user_ip" json:"user_ip,omitempty" toml:"user_ip" yaml:"user_ip,omitempty"`
 	Votes     types.Int64Array `boil:"votes" json:"votes,omitempty" toml:"votes" yaml:"votes,omitempty"`
@@ -57,14 +57,14 @@ var BallotColumns = struct {
 
 // Generated where
 
-type whereHelperint struct{ field string }
+type whereHelperint64 struct{ field string }
 
-func (w whereHelperint) EQ(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperint) NEQ(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperint) LT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperint) LTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperint) GT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperint) GTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperint64) EQ(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperint64) NEQ(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperint64) LT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperint64) LTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperint64) GT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperint64) GTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
 
 type whereHelpertime_Time struct{ field string }
 
@@ -134,18 +134,18 @@ func (w whereHelpertypes_Int64Array) GTE(x types.Int64Array) qm.QueryMod {
 }
 
 var BallotWhere = struct {
-	ID        whereHelperint
+	ID        whereHelperint64
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
-	PollID    whereHelperint
+	PollID    whereHelperint64
 	UserXID   whereHelpernull_String
 	UserIP    whereHelpernull_String
 	Votes     whereHelpertypes_Int64Array
 }{
-	ID:        whereHelperint{field: `id`},
+	ID:        whereHelperint64{field: `id`},
 	CreatedAt: whereHelpertime_Time{field: `created_at`},
 	UpdatedAt: whereHelpertime_Time{field: `updated_at`},
-	PollID:    whereHelperint{field: `poll_id`},
+	PollID:    whereHelperint64{field: `poll_id`},
 	UserXID:   whereHelpernull_String{field: `user_xid`},
 	UserIP:    whereHelpernull_String{field: `user_ip`},
 	Votes:     whereHelpertypes_Int64Array{field: `votes`},
@@ -431,7 +431,7 @@ func Ballots(mods ...qm.QueryMod) ballotQuery {
 
 // FindBallot retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindBallot(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Ballot, error) {
+func FindBallot(ctx context.Context, exec boil.ContextExecutor, iD int64, selectCols ...string) (*Ballot, error) {
 	ballotObj := &Ballot{}
 
 	sel := "*"
@@ -887,7 +887,7 @@ func (o *BallotSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) 
 }
 
 // BallotExists checks if the Ballot row exists.
-func BallotExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
+func BallotExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
 	sql := "select exists(select 1 from \"ballots\" where \"id\"=$1 limit 1)"
 

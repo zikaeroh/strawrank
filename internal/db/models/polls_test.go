@@ -575,7 +575,7 @@ func testPollsSelect(t *testing.T) {
 }
 
 var (
-	pollDBTypes = map[string]string{`ID`: `integer`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`, `Question`: `text`, `Choices`: `ARRAYtext`}
+	pollDBTypes = map[string]string{`ID`: `bigint`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`, `Question`: `text`, `Choices`: `ARRAYtext`}
 	_           = bytes.MinRead
 )
 

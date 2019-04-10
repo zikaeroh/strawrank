@@ -13,9 +13,16 @@ services:
 cache:
   directories:
     - $GOPATH/pkg
+    - $HOME/.cache/go-build
 
 before_install:
   - go get -v -u github.com/mattn/goveralls
+  - go get -tags 'postgres' -u github.com/golang-migrate/migrate/cmd/migrate
+  - docker pull zikaeroh/postgres-initialized
+  - docker run -d -p 5432:5432 zikaeroh/postgres-initialized
+  - docker ps -a
+  - migrate -database 'postgres://postgres:mysecretpassword@localhost:5432/postgres?sslmode=disable' -path internal/db/migrations up
+
 script:
   - go test -race -covermode=atomic -coverprofile=cover.out ./...
   - $GOPATH/bin/goveralls -service=travis-ci -coverprofile=cover.out

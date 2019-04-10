@@ -25,7 +25,7 @@ func (a *App) pollIDCheck(paramName string) func(http.Handler) http.Handler {
 				return
 			}
 
-			ids, err := a.hid.DecodeWithError(idStr)
+			ids, err := a.hid.DecodeInt64WithError(idStr)
 			if err != nil {
 				logger.Debug("error decoding pollID", zap.String("idStr", idStr), zap.Error(err))
 				http.NotFound(w, r)
@@ -39,7 +39,7 @@ func (a *App) pollIDCheck(paramName string) func(http.Handler) http.Handler {
 			}
 
 			ctx = context.WithValue(ctx, pollIDKey{}, ids)
-			ctx, logger = ctxlog.FromContextWith(ctx, zap.Ints("pollID", ids))
+			ctx, logger = ctxlog.FromContextWith(ctx, zap.Int64s("pollID", ids))
 
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
@@ -49,12 +49,12 @@ func (a *App) pollIDCheck(paramName string) func(http.Handler) http.Handler {
 
 // getPollIDs gets the poll ID slice decoded from the request. It is guaranteed
 // to not be empty.
-func getPollIDs(r *http.Request) []int {
+func getPollIDs(r *http.Request) []int64 {
 	id := r.Context().Value(pollIDKey{})
 	if id == nil {
 		panic("failed to get poll ID")
 	}
-	return id.([]int)
+	return id.([]int64)
 }
 
 type userIDKey struct{}

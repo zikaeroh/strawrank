@@ -130,8 +130,6 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 
 	logger.Debug("posted new poll", zap.String("question", question), zap.Strings("choices", choices))
 
-	// TODO: store submission, redirect to results page
-
 	poll := models.Poll{
 		Question: question,
 		Choices:  choices,
@@ -143,7 +141,7 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p, err := a.hid.Encode([]int{poll.ID})
+	p, err := a.hid.EncodeInt64([]int64{poll.ID})
 	if err != nil {
 		httpError(w, http.StatusInternalServerError)
 		return
@@ -236,7 +234,7 @@ func (a *App) handleResults(w http.ResponseWriter, r *http.Request) {
 
 	templates.WritePageTemplate(w, &templates.ResultsPage{
 		Question: poll.Question,
-		Content:  spew.Sdump(poll.R.Ballots),
+		Content:  (&spew.ConfigState{Indent: "    "}).Sdump(poll.R.Ballots),
 	})
 }
 

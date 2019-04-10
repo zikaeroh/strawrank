@@ -42,10 +42,13 @@ require (
 	golang.org/x/sys v0.0.0-20190405154228-4b34438f7a67 // indirect
 	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
-	golang.org/x/tools v0.0.0-20190408220357-e5b8258f4918 // indirect
+	golang.org/x/tools v0.0.0-20190409223705-96f2e7ef861b // indirect
 	google.golang.org/genproto v0.0.0-20190404172233-64821d5d2107 // indirect
-	google.golang.org/grpc v1.19.1 // indirect
+	google.golang.org/grpc v1.20.0 // indirect
+	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.3 // indirect
 	gotest.tools v2.2.0+incompatible
 )
 
 replace github.com/golang/lint => golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3
+
+replace gopkg.in/DATA-DOG/go-sqlmock.v1 => github.com/DATA-DOG/go-sqlmock v1.3.3
