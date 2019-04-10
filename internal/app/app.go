@@ -196,22 +196,40 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 
 	logger.Debug("posted vote", zap.Int64s("votes", votes))
 
-	ballot := models.Ballot{
-		PollID:  pollID,
-		UserXID: null.StringFrom(userID.String()),
-		Votes:   votes,
-	}
+	txErr := a.transact(func(tx *sql.Tx) error {
+		exists, err := models.PollExists(ctx, tx, pollID)
+		if err != nil {
+			logger.Error("error checking existence of poll", zap.Error(err))
+			httpError(w, http.StatusBadRequest)
+			return err
+		}
 
-	if err := ballot.Insert(ctx, a.db, boil.Infer()); err != nil {
-		logger.Error("error inserting ballot", zap.Error(err))
+		if !exists {
+			http.NotFound(w, r)
+			return nil
+		}
+
+		ballot := models.Ballot{
+			PollID:  pollID,
+			UserXID: null.StringFrom(userID.String()),
+			Votes:   votes,
+		}
+
+		if err := ballot.Insert(ctx, a.db, boil.Infer()); err != nil {
+			logger.Error("error inserting ballot", zap.Error(err))
+			httpError(w, http.StatusInternalServerError)
+			return err
+		}
+
+		http.Redirect(w, r, r.RequestURI+"/r", http.StatusSeeOther)
+		return nil
+	})
+
+	if txErr != nil {
+		logger.Error("transaction error", zap.Error(txErr))
 		httpError(w, http.StatusInternalServerError)
 		return
 	}
-
-	// TODO: tally votes
-
-	// Post/Redirect/Get
-	http.Redirect(w, r, r.RequestURI+"/r", http.StatusSeeOther)
 }
 
 func (a *App) handleResults(w http.ResponseWriter, r *http.Request) {
