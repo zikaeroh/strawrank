@@ -20,7 +20,7 @@ before_install:
   - GO111MODULE=off go get -tags 'postgres' -u github.com/golang-migrate/migrate/cmd/migrate
   - docker pull zikaeroh/postgres-initialized
   - docker ps -a
-  - docker kill $(docker ps -q)
+  - docker ps -q | xargs -r docker kill
   - docker ps -a
   - docker run -d -p 5432:5432 zikaeroh/postgres-initialized
   - docker ps -a
