@@ -16,8 +16,8 @@ cache:
     - $HOME/.cache/go-build
 
 before_install:
-  - go get -v -u github.com/mattn/goveralls
-  - go get -tags 'postgres' -u github.com/golang-migrate/migrate/cmd/migrate
+  - GO111MODULE=off go get -v -u github.com/mattn/goveralls
+  - GO111MODULE=off go get -tags 'postgres' -u github.com/golang-migrate/migrate/cmd/migrate
   - docker pull zikaeroh/postgres-initialized
   - docker run -d -p 5432:5432 zikaeroh/postgres-initialized
   - docker ps -a
