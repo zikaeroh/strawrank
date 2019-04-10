@@ -197,16 +197,23 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 	logger.Debug("posted vote", zap.Int64s("votes", votes))
 
 	txErr := a.transact(func(tx *sql.Tx) error {
-		exists, err := models.PollExists(ctx, tx, pollID)
+		poll, err := models.FindPoll(ctx, a.db, pollID)
 		if err != nil {
-			logger.Error("error checking existence of poll", zap.Error(err))
-			httpError(w, http.StatusBadRequest)
+			if err == sql.ErrNoRows {
+				http.NotFound(w, r)
+				return nil
+			}
+
+			logger.Error("error finding poll", zap.Error(err))
+			httpError(w, http.StatusInternalServerError)
 			return err
 		}
 
-		if !exists {
-			http.NotFound(w, r)
-			return nil
+		for _, vote := range votes {
+			if vote <= 0 || vote >= int64(len(poll.Choices)) {
+				httpError(w, http.StatusBadRequest)
+				return nil
+			}
 		}
 
 		ballot := models.Ballot{
