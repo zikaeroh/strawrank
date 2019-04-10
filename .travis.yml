@@ -19,11 +19,7 @@ before_install:
   - GO111MODULE=off go get -v -u github.com/mattn/goveralls
   - GO111MODULE=off go get -tags 'postgres' -u github.com/golang-migrate/migrate/cmd/migrate
   - docker pull zikaeroh/postgres-initialized
-  - docker ps -a
-  - docker ps -q | xargs -r docker kill
-  - docker ps -a
-  - docker run -d -p 5432:5432 zikaeroh/postgres-initialized
-  - docker ps -a
+  - docker run -d -p 127.0.0.1:5432:5432 zikaeroh/postgres-initialized
   - migrate -database 'postgres://postgres:mysecretpassword@localhost:5432/postgres?sslmode=disable' -path internal/db/migrations up
 
 script:
