@@ -89,7 +89,7 @@ func New(c *Config) (*App, error) {
 		r.Use(a.pollIDCheck("pollID"))
 
 		r.Group(func(r chi.Router) {
-			r.Use(a.userIDCheck)
+			r.Use(a.setUserInfo)
 			r.Get("/", a.handleVote)
 			r.Post("/", a.handleVotePost)
 		})
@@ -180,7 +180,7 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 	logger := ctxlog.FromContext(ctx)
 
 	pollID := getPollIDs(r)[0]
-	userID := getUserID(r)
+	ui := getUserInfo(r)
 
 	var votes []int64
 
@@ -209,16 +209,30 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 			return err
 		}
 
+		choicesLen := int64(len(poll.Choices))
+
 		for _, vote := range votes {
-			if vote <= 0 || vote >= int64(len(poll.Choices)) {
+			if vote < 0 || vote >= choicesLen {
+				logger.Debug("vote is out of range", zap.Int64("vote", vote), zap.Int64("len", choicesLen))
 				httpError(w, http.StatusBadRequest)
 				return nil
 			}
 		}
 
+		var userXID null.String
+		if !ui.id.IsNil() {
+			userXID = null.StringFrom(ui.id.String())
+		}
+
+		var userIP null.String
+		if len(ui.ip) != 0 {
+			userIP = null.StringFrom(ui.ip.String())
+		}
+
 		ballot := models.Ballot{
 			PollID:  pollID,
-			UserXID: null.StringFrom(userID.String()),
+			UserXID: userXID,
+			UserIP:  userIP,
 			Votes:   votes,
 		}
 

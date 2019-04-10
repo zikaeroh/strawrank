@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"net"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -57,7 +58,53 @@ func getPollIDs(r *http.Request) []int64 {
 	return id.([]int64)
 }
 
-type userIDKey struct{}
+type userInfo struct {
+	id xid.ID
+	ip net.IP
+}
+
+type userInfoKey struct{}
+
+func (a *App) setUserInfo(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		logger := ctxlog.FromContext(ctx)
+
+		id, err := a.getSetUserID(w, r)
+		if err != nil {
+			logger.Debug("failed to get user ID", zap.Error(err))
+		}
+
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			logger.Debug("failed to split RemoteAddr", zap.Error(err), zap.String("remote_addr", r.RemoteAddr))
+		}
+
+		userIP := net.ParseIP(ip)
+		if userIP == nil {
+			logger.Debug("failed to parse IP", zap.Error(err), zap.String("ip", ip))
+		}
+
+		ui := userInfo{
+			id: id,
+			ip: userIP,
+		}
+
+		ctx = context.WithValue(ctx, userInfoKey{}, ui)
+		ctx, _ = ctxlog.FromContextWith(ctx, zap.String("userID", id.String()))
+
+		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func getUserInfo(r *http.Request) userInfo {
+	ui := r.Context().Value(userInfoKey{})
+	if ui == nil {
+		panic("failed to get user info")
+	}
+	return ui.(userInfo)
+}
 
 func (a *App) getSetUserID(w http.ResponseWriter, r *http.Request) (xid.ID, error) {
 	const cookieName = "user-id"
@@ -97,32 +144,4 @@ func (a *App) getSetUserID(w http.ResponseWriter, r *http.Request) (xid.ID, erro
 	http.SetCookie(w, c)
 
 	return cookie.XID, nil
-}
-
-func (a *App) userIDCheck(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		logger := ctxlog.FromContext(ctx)
-
-		user, err := a.getSetUserID(w, r)
-		if err != nil {
-			logger.Debug("failed to get user ID", zap.Error(err))
-			httpError(w, http.StatusUnauthorized)
-			return
-		}
-
-		ctx = context.WithValue(ctx, userIDKey{}, user)
-		ctx, _ = ctxlog.FromContextWith(ctx, zap.String("userID", user.String()))
-
-		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
-	})
-}
-
-func getUserID(r *http.Request) xid.ID {
-	id := r.Context().Value(userIDKey{})
-	if id == nil {
-		panic("failed to get user ID")
-	}
-	return id.(xid.ID)
 }
