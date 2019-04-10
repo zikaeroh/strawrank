@@ -5,12 +5,12 @@ package polling
 type Ballot struct {
 	// Votes is an ordered list of candidate IDs, from most preferable to
 	// least preferable.
-	Votes []int `json:"votes"`
+	Votes []int64 `json:"votes"`
 }
 
 // NewBallot creates a new Ballot from a list of candidate IDs. It is shorthand
 // for filling in Votes with a slice of IDs.
-func NewBallot(ids ...int) Ballot {
+func NewBallot(ids ...int64) Ballot {
 	return Ballot{
 		Votes: ids,
 	}
@@ -18,8 +18,8 @@ func NewBallot(ids ...int) Ballot {
 
 // Without returns a copy of the ballot with all votes for a specific candidate
 // removed.
-func (b Ballot) Without(id int) Ballot {
-	votes := make([]int, 0, len(b.Votes))
+func (b Ballot) Without(id int64) Ballot {
+	votes := make([]int64, 0, len(b.Votes))
 
 	for _, v := range b.Votes {
 		if v != id {
@@ -45,7 +45,7 @@ type Result struct {
 // Candidate is a polling candidate for the tally result.
 type Candidate struct {
 	// ID is a unique number identifying a candidate.
-	ID int `json:"id"`
+	ID int64 `json:"id"`
 
 	// Count is the number of votes a candidate has.
 	Count int `json:"count"`

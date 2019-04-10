@@ -14,7 +14,7 @@ func Tally(ballots []polling.Ballot) polling.Result {
 		return polling.Result{}
 	}
 
-	tally := make(map[int]int)
+	tally := make(map[int64]int)
 	total := 0
 
 	for _, b := range ballots {

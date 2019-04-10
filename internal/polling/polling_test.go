@@ -13,7 +13,7 @@ func TestWithout(t *testing.T) {
 	tests := []struct {
 		name  string
 		input polling.Ballot
-		id    int
+		id    int64
 		want  polling.Ballot
 	}{
 		{
@@ -65,8 +65,8 @@ func TestWithout(t *testing.T) {
 	}
 }
 
-func copyVotes(in []int) []int {
-	out := make([]int, len(in))
+func copyVotes(in []int64) []int64 {
+	out := make([]int64, len(in))
 	copy(out, in)
 	return out
 }
