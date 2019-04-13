@@ -181,6 +181,51 @@ var tests = []struct {
 			},
 		},
 	},
+	{
+		name: "Spotty stripy",
+		ballots: []polling.Ballot{
+			polling.NewBallot(1),
+			polling.NewBallot(1),
+			polling.NewBallot(1),
+			polling.NewBallot(3, 2),
+			polling.NewBallot(3, 2),
+			polling.NewBallot(2),
+			polling.NewBallot(2),
+		},
+		result: polling.Result{
+			Winners: []polling.Candidate{
+				{ID: 1, Count: 3},
+			},
+			Ranking: []polling.Candidate{
+				{ID: 1, Count: 3},
+				{ID: 2, Count: 2},
+				{ID: 3, Count: 2},
+			},
+			Total: 7,
+		},
+		rounds: []polling.Result{
+			{
+				Winners: []polling.Candidate{
+					{ID: 1, Count: 3},
+				},
+				Ranking: []polling.Candidate{
+					{ID: 1, Count: 3},
+					{ID: 2, Count: 2},
+					{ID: 3, Count: 2},
+				},
+				Total: 7,
+			},
+			{
+				Winners: []polling.Candidate{
+					{ID: 1, Count: 3},
+				},
+				Ranking: []polling.Candidate{
+					{ID: 1, Count: 3},
+				},
+				Total: 3,
+			},
+		},
+	},
 }
 
 func TestTally(t *testing.T) {

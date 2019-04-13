@@ -3,6 +3,8 @@
 package irv
 
 import (
+	"sort"
+
 	"github.com/zikaeroh/strawrank/internal/polling"
 	"github.com/zikaeroh/strawrank/internal/polling/fptp"
 )
@@ -39,30 +41,70 @@ func TallyWithRounds(ballots []polling.Ballot) (polling.Result, []polling.Result
 		end := len(result.Ranking) - 1
 		bottomCount := result.Ranking[end].Count
 
+		toRemove := make(map[int64]bool)
+
 		for i := end; i >= 0; i-- {
 			can := result.Ranking[i]
 			if can.Count > bottomCount {
 				break
 			}
 
-			id := can.ID
-			can.Count = 0
+			toRemove[can.ID] = true
+		}
 
-			for j, b := range ballots {
-				if len(b.Votes) == 0 {
-					continue
-				}
+		toRemoveCounts := make(map[int64]int)
 
-				newB := b.Without(id)
-				ballots[j] = newB
+		for i, b := range ballots {
+			ok := true
 
-				if len(newB.Votes) == 0 {
-					can.Count++
+			for _, v := range b.Votes {
+				if toRemove[v] {
+					ok = false
+					break
 				}
 			}
 
-			eliminated = append(eliminated, can)
+			if ok {
+				continue
+			}
+
+			votes := make([]int64, 0, len(b.Votes))
+
+			first := true
+			var firstRemoved int64
+
+			for _, v := range b.Votes {
+				if toRemove[v] {
+					if first {
+						first = false
+						firstRemoved = v
+					}
+				} else {
+					votes = append(votes, v)
+				}
+			}
+
+			if len(votes) == 0 {
+				toRemoveCounts[firstRemoved]++
+			}
+
+			ballots[i].Votes = votes
 		}
+
+		newElim := make([]polling.Candidate, 0, len(toRemoveCounts))
+
+		for id, count := range toRemoveCounts {
+			newElim = append(newElim, polling.Candidate{
+				ID:    id,
+				Count: count,
+			})
+		}
+
+		sort.Slice(newElim, func(i, j int) bool {
+			return newElim[i].ID > newElim[j].ID
+		})
+
+		eliminated = append(eliminated, newElim...)
 	}
 }
 
