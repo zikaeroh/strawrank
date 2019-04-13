@@ -13,7 +13,7 @@ CREATE TABLE polls (
     updated_at timestamp DEFAULT NOW() NOT NULL,
     question text NOT NULL,
     choices text[],
-    check_mode ballot_check_mode DEFAULT 'ip_and_cookie' NOT NULL
+    check_mode ballot_check_mode DEFAULT 'cookie' NOT NULL
 );
 
 CREATE TABLE ballots (

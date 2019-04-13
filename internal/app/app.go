@@ -129,6 +129,7 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 
 	question := r.FormValue("question")
 	choices := r.Form["choice"]
+	checkMode := r.FormValue("checkMode")
 
 	question = strings.TrimSpace(question)
 
@@ -153,11 +154,25 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 		choices[i] = choice
 	}
 
+	checkMode = strings.TrimSpace(checkMode)
+
+	switch checkMode {
+	case models.BallotCheckModeNone:
+	case models.BallotCheckModeCookie:
+	case models.BallotCheckModeIP:
+	case models.BallotCheckModeIPAndCookie:
+		// Valid
+	default:
+		httpError(w, http.StatusBadRequest)
+		return
+	}
+
 	logger.Debug("posted new poll", zap.String("question", question), zap.Strings("choices", choices))
 
 	poll := models.Poll{
-		Question: question,
-		Choices:  choices,
+		Question:  question,
+		Choices:   choices,
+		CheckMode: checkMode,
 	}
 
 	if err := poll.Insert(ctx, a.db, boil.Infer()); err != nil {
