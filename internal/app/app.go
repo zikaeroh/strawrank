@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
+	"strings"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi"
@@ -128,6 +130,29 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 	question := r.FormValue("question")
 	choices := r.Form["choice"]
 
+	question = strings.TrimSpace(question)
+
+	if len(question) == 0 {
+		httpError(w, http.StatusBadRequest)
+		return
+	}
+
+	if len(choices) == 0 {
+		httpError(w, http.StatusBadRequest)
+		return
+	}
+
+	for i, choice := range choices {
+		choice = strings.TrimSpace(choice)
+
+		if len(choice) <= 1 {
+			httpError(w, http.StatusBadRequest)
+			return
+		}
+
+		choices[i] = choice
+	}
+
 	logger.Debug("posted new poll", zap.String("question", question), zap.Strings("choices", choices))
 
 	poll := models.Poll{
@@ -209,6 +234,55 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 			return err
 		}
 
+		var cookie null.String
+		if !ui.cookie.IsNil() {
+			cookie = null.StringFrom(ui.cookie.String())
+		}
+
+		var userIP null.String
+		if len(ui.ip) != 0 {
+			userIP = null.StringFrom(ui.ip.String())
+		}
+
+		qms := make([]qm.QueryMod, 1, 2)
+		qms[0] = models.BallotWhere.PollID.EQ(pollID)
+
+		switch poll.CheckMode {
+		case models.BallotCheckModeNone:
+			// Do nothing.
+		case models.BallotCheckModeCookie:
+			qms = append(qms,
+				models.BallotWhere.Cookie.EQ(cookie),
+			)
+		case models.BallotCheckModeIP:
+			models.BallotWhere.IPAddr.EQ(userIP)
+			qms = append(qms,
+				models.BallotWhere.IPAddr.EQ(userIP),
+			)
+		case models.BallotCheckModeIPAndCookie:
+			qms = append(qms,
+				qm.Expr(
+					models.BallotWhere.Cookie.EQ(cookie),
+					qm.Or2(models.BallotWhere.IPAddr.EQ(userIP)),
+				),
+			)
+		default:
+			panic("unreachable")
+		}
+
+		exists, err := models.Ballots(qms...).Exists(ctx, tx)
+		if err != nil {
+			logger.Error("error checking for existing ballot", zap.Error(err))
+			httpError(w, http.StatusInternalServerError)
+			return err
+		}
+
+		if exists {
+			// TODO: indicate that this is a duplicate?
+			http.Redirect(w, r, r.RequestURI+"/r", http.StatusSeeOther)
+			return nil
+		}
+
 		choicesLen := int64(len(poll.Choices))
 
 		for _, vote := range votes {
@@ -219,21 +293,11 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		var userXID null.String
-		if !ui.id.IsNil() {
-			userXID = null.StringFrom(ui.id.String())
-		}
-
-		var userIP null.String
-		if len(ui.ip) != 0 {
-			userIP = null.StringFrom(ui.ip.String())
-		}
-
 		ballot := models.Ballot{
-			PollID:  pollID,
-			UserXID: userXID,
-			UserIP:  userIP,
-			Votes:   votes,
+			PollID: pollID,
+			Cookie: cookie,
+			IPAddr: userIP,
+			Votes:  votes,
 		}
 
 		if err := ballot.Insert(ctx, a.db, boil.Infer()); err != nil {
@@ -306,6 +370,25 @@ func (a *App) handleDebugDatabase(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "ballots:")
 
 	ballots, err := models.Ballots().All(ctx, a.db)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for _, ballot := range ballots {
+		if err := enc.Encode(ballot); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprintln(w)
+	}
+
+	fmt.Fprintln(w, "ballots from [::1]:")
+
+	ip := net.ParseIP("::1").To16()
+
+	ballots, err = models.Ballots(models.BallotWhere.IPAddr.EQ(null.StringFrom(ip.String()))).All(ctx, a.db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

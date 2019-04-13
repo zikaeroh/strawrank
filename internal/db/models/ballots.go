@@ -29,8 +29,8 @@ type Ballot struct {
 	CreatedAt time.Time        `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt time.Time        `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	PollID    int64            `boil:"poll_id" json:"poll_id" toml:"poll_id" yaml:"poll_id"`
-	UserXID   null.String      `boil:"user_xid" json:"user_xid,omitempty" toml:"user_xid" yaml:"user_xid,omitempty"`
-	UserIP    null.String      `boil:"user_ip" json:"user_ip,omitempty" toml:"user_ip" yaml:"user_ip,omitempty"`
+	Cookie    null.String      `boil:"cookie" json:"cookie,omitempty" toml:"cookie" yaml:"cookie,omitempty"`
+	IPAddr    null.String      `boil:"ip_addr" json:"ip_addr,omitempty" toml:"ip_addr" yaml:"ip_addr,omitempty"`
 	Votes     types.Int64Array `boil:"votes" json:"votes,omitempty" toml:"votes" yaml:"votes,omitempty"`
 
 	R *ballotR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -42,16 +42,16 @@ var BallotColumns = struct {
 	CreatedAt string
 	UpdatedAt string
 	PollID    string
-	UserXID   string
-	UserIP    string
+	Cookie    string
+	IPAddr    string
 	Votes     string
 }{
 	ID:        "id",
 	CreatedAt: "created_at",
 	UpdatedAt: "updated_at",
 	PollID:    "poll_id",
-	UserXID:   "user_xid",
-	UserIP:    "user_ip",
+	Cookie:    "cookie",
+	IPAddr:    "ip_addr",
 	Votes:     "votes",
 }
 
@@ -138,16 +138,16 @@ var BallotWhere = struct {
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
 	PollID    whereHelperint64
-	UserXID   whereHelpernull_String
-	UserIP    whereHelpernull_String
+	Cookie    whereHelpernull_String
+	IPAddr    whereHelpernull_String
 	Votes     whereHelpertypes_Int64Array
 }{
 	ID:        whereHelperint64{field: `id`},
 	CreatedAt: whereHelpertime_Time{field: `created_at`},
 	UpdatedAt: whereHelpertime_Time{field: `updated_at`},
 	PollID:    whereHelperint64{field: `poll_id`},
-	UserXID:   whereHelpernull_String{field: `user_xid`},
-	UserIP:    whereHelpernull_String{field: `user_ip`},
+	Cookie:    whereHelpernull_String{field: `cookie`},
+	IPAddr:    whereHelpernull_String{field: `ip_addr`},
 	Votes:     whereHelpertypes_Int64Array{field: `votes`},
 }
 
@@ -172,8 +172,8 @@ func (*ballotR) NewStruct() *ballotR {
 type ballotL struct{}
 
 var (
-	ballotColumns               = []string{"id", "created_at", "updated_at", "poll_id", "user_xid", "user_ip", "votes"}
-	ballotColumnsWithoutDefault = []string{"poll_id", "user_xid", "user_ip", "votes"}
+	ballotColumns               = []string{"id", "created_at", "updated_at", "poll_id", "cookie", "ip_addr", "votes"}
+	ballotColumnsWithoutDefault = []string{"poll_id", "cookie", "ip_addr", "votes"}
 	ballotColumnsWithDefault    = []string{"id", "created_at", "updated_at"}
 	ballotPrimaryKeyColumns     = []string{"id"}
 )

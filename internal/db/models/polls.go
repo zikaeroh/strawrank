@@ -29,6 +29,7 @@ type Poll struct {
 	UpdatedAt time.Time         `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	Question  string            `boil:"question" json:"question" toml:"question" yaml:"question"`
 	Choices   types.StringArray `boil:"choices" json:"choices,omitempty" toml:"choices" yaml:"choices,omitempty"`
+	CheckMode string            `boil:"check_mode" json:"check_mode" toml:"check_mode" yaml:"check_mode"`
 
 	R *pollR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L pollL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -40,12 +41,14 @@ var PollColumns = struct {
 	UpdatedAt string
 	Question  string
 	Choices   string
+	CheckMode string
 }{
 	ID:        "id",
 	CreatedAt: "created_at",
 	UpdatedAt: "updated_at",
 	Question:  "question",
 	Choices:   "choices",
+	CheckMode: "check_mode",
 }
 
 // Generated where
@@ -88,12 +91,14 @@ var PollWhere = struct {
 	UpdatedAt whereHelpertime_Time
 	Question  whereHelperstring
 	Choices   whereHelpertypes_StringArray
+	CheckMode whereHelperstring
 }{
 	ID:        whereHelperint64{field: `id`},
 	CreatedAt: whereHelpertime_Time{field: `created_at`},
 	UpdatedAt: whereHelpertime_Time{field: `updated_at`},
 	Question:  whereHelperstring{field: `question`},
 	Choices:   whereHelpertypes_StringArray{field: `choices`},
+	CheckMode: whereHelperstring{field: `check_mode`},
 }
 
 // PollRels is where relationship names are stored.
@@ -117,9 +122,9 @@ func (*pollR) NewStruct() *pollR {
 type pollL struct{}
 
 var (
-	pollColumns               = []string{"id", "created_at", "updated_at", "question", "choices"}
+	pollColumns               = []string{"id", "created_at", "updated_at", "question", "choices", "check_mode"}
 	pollColumnsWithoutDefault = []string{"question", "choices"}
-	pollColumnsWithDefault    = []string{"id", "created_at", "updated_at"}
+	pollColumnsWithDefault    = []string{"id", "created_at", "updated_at", "check_mode"}
 	pollPrimaryKeyColumns     = []string{"id"}
 )
 

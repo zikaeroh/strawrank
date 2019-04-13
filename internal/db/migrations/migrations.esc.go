@@ -212,25 +212,25 @@ var _escData = map[string]*_escFile{
 	"/20190406195527_initial_schema.down.sql": {
 		name:    "20190406195527_initial_schema.down.sql",
 		local:   "20190406195527_initial_schema.down.sql",
-		size:    55,
-		modtime: 1554607268,
+		size:    85,
+		modtime: 1555124721,
 		compressed: `
-H4sIAAAAAAAC/3Jydff0s+bicgnyD1AIcXTycVVISszJyS8pRhUsyM/JAQk5+/v6eoZYAwIAAP//7dte
-JTcAAAA=
+H4sIAAAAAAAC/3Jydff0s+bicgnyD1AIcXTycVVISszJyS8pRhUsyM/JQQhFBsCUxSdnpCZnx+fmp6Ra
+c3E5+/v6eoZYAwIAAP//Oor8b1UAAAA=
 `,
 	},
 
 	"/20190406195527_initial_schema.up.sql": {
 		name:    "20190406195527_initial_schema.up.sql",
 		local:   "20190406195527_initial_schema.up.sql",
-		size:    540,
-		modtime: 1554842044,
+		size:    705,
+		modtime: 1555124720,
 		compressed: `
-H4sIAAAAAAAC/7SRTWrDMBSE9z7FLB3oDbKS45cgastFUSimFONYohU4kRu9lNDTlzr9CemieNHtDJ/0
-ZiajlVTzJFloEoZgRFYQhtD3EWkCAN5i65/8nrEiRVoYypHVyGkpNoWBWEPmpIw0Ne60LIWucUv1zch2
-B9eys03LYL9zkdvd8E2q6j6dQVUGalMUZ+A42GnAy9FF9mEPdie+8rrn4DsXR+vhMZldp9y2fR/4v3Ly
-2+SkfyAfqzQ/Z2pakia1oPV5r9TbX59Ed2hO3o4VXEh+uFBeA7v4+ehXTVVZSjN/DwAA//8dm+0+HAIA
-AA==
+H4sIAAAAAAAC/7SRUWvCMBSF3/sr7psK+wc+Rb1KWRslRkYRCTUJM9gmnY1j7NePmraT+jB82NvlXM45
+l+/OcBXTaRTNGRKOwLMNwjEvCueFPGl5FqVTGsgWkO5SGEcAACPrrB69hNlU3SSdO5s7XeRWiVaMJncd
+ZJYgVK4o6jbQKDiad2M9rJAiIxwXMMtggUuyS3jTHi+Q8phnsGFxSlgGr5iFInnRuddK5B68KXXt87Lq
+nXT9Np4AXXOguyQJhmulnjN8XHXtjbPg9Zcf7OTJGanr22p/6LSe2yPJrmjAp499BBUy/guV/34a1h+W
+5rHi90yGS2RI57gNLx8bNXQEBjeGQWjYKHUBY3WrfDqv6zZyfwiQ1mka8+lPAAAA///oF6+BwQIAAA==
 `,
 	},
 

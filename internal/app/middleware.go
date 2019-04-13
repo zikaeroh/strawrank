@@ -59,8 +59,8 @@ func getPollIDs(r *http.Request) []int64 {
 }
 
 type userInfo struct {
-	id xid.ID
-	ip net.IP
+	cookie xid.ID
+	ip     net.IP
 }
 
 type userInfoKey struct{}
@@ -86,8 +86,8 @@ func (a *App) setUserInfo(next http.Handler) http.Handler {
 		}
 
 		ui := userInfo{
-			id: id,
-			ip: userIP,
+			cookie: id,
+			ip:     userIP,
 		}
 
 		ctx = context.WithValue(ctx, userInfoKey{}, ui)

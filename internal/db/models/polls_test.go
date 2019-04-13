@@ -575,7 +575,7 @@ func testPollsSelect(t *testing.T) {
 }
 
 var (
-	pollDBTypes = map[string]string{`ID`: `bigint`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`, `Question`: `text`, `Choices`: `ARRAYtext`}
+	pollDBTypes = map[string]string{`ID`: `bigint`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`, `Question`: `text`, `Choices`: `ARRAYtext`, `CheckMode`: `enum.ballot_check_mode('none','ip','cookie','ip_and_cookie')`}
 	_           = bytes.MinRead
 )
 

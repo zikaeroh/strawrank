@@ -50,3 +50,11 @@ func makeCacheKey(cols boil.Columns, nzDefaults []string) string {
 	strmangle.PutBuffer(buf)
 	return str
 }
+
+// Enum values for ballot_check_mode
+const (
+	BallotCheckModeNone        = "none"
+	BallotCheckModeIP          = "ip"
+	BallotCheckModeCookie      = "cookie"
+	BallotCheckModeIPAndCookie = "ip_and_cookie"
+)

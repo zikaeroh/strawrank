@@ -16,7 +16,37 @@ import (
 	"gotest.tools/assert/cmp"
 )
 
-func Test(t *testing.T) {
+func TestUp(t *testing.T) {
+	t.Parallel()
+
+	withDatabase(t, func(t *testing.T, db *sql.DB) {
+		assert.NilError(t, migrations.Up(db, t.Logf))
+		assertTableNames(t, db, "polls", "ballots", "schema_migrations")
+	})
+}
+
+func TestUpDown(t *testing.T) {
+	t.Parallel()
+
+	withDatabase(t, func(t *testing.T, db *sql.DB) {
+		assert.NilError(t, migrations.Up(db, t.Logf))
+		assert.NilError(t, migrations.Down(db, t.Logf))
+		assertTableNames(t, db, "schema_migrations")
+	})
+}
+
+func TestReset(t *testing.T) {
+	t.Parallel()
+
+	withDatabase(t, func(t *testing.T, db *sql.DB) {
+		assert.NilError(t, migrations.Up(db, t.Logf))
+		assertTableNames(t, db, "polls", "ballots", "schema_migrations")
+		assert.NilError(t, migrations.Reset(db, t.Logf))
+		assertTableNames(t, db, "polls", "ballots", "schema_migrations")
+	})
+}
+
+func withDatabase(t *testing.T, fn func(t *testing.T, db *sql.DB)) {
 	if testing.Short() {
 		t.Skip("requires starting a docker container")
 	}
@@ -36,41 +66,11 @@ func Test(t *testing.T) {
 			assert.NilError(t, err)
 			defer db.Close()
 
-			runTest(t, db, "Up", testUp)
-			runTest(t, db, "UpDown", testUpDown)
-			runTest(t, db, "Reset", testReset)
+			assert.NilError(t, db.Ping())
+
+			assertTableNames(t, db)
+			fn(t, db)
 		})
-}
-
-func runTest(t *testing.T, db *sql.DB, name string, fn func(t *testing.T, db *sql.DB)) {
-	defer func() {
-		dropAll(t, db)
-		assertTableNames(t, db)
-	}()
-
-	assertTableNames(t, db)
-
-	t.Run(name, func(t *testing.T) {
-		fn(t, db)
-	})
-}
-
-func testUp(t *testing.T, db *sql.DB) {
-	assert.NilError(t, migrations.Up(db, t.Logf))
-	assertTableNames(t, db, "polls", "ballots", "schema_migrations")
-}
-
-func testUpDown(t *testing.T, db *sql.DB) {
-	assert.NilError(t, migrations.Up(db, t.Logf))
-	assert.NilError(t, migrations.Down(db, t.Logf))
-	assertTableNames(t, db, "schema_migrations")
-}
-
-func testReset(t *testing.T, db *sql.DB) {
-	assert.NilError(t, migrations.Up(db, t.Logf))
-	assertTableNames(t, db, "polls", "ballots", "schema_migrations")
-	assert.NilError(t, migrations.Reset(db, t.Logf))
-	assertTableNames(t, db, "polls", "ballots", "schema_migrations")
 }
 
 func connStr(ip, port string) string {

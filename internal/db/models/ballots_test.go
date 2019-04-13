@@ -530,7 +530,7 @@ func testBallotsSelect(t *testing.T) {
 }
 
 var (
-	ballotDBTypes = map[string]string{`ID`: `bigint`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `PollID`: `bigint`, `UserXID`: `text`, `UserIP`: `text`, `Votes`: `ARRAYbigint`}
+	ballotDBTypes = map[string]string{`ID`: `bigint`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `PollID`: `bigint`, `Cookie`: `text`, `IPAddr`: `inet`, `Votes`: `ARRAYbigint`}
 	_             = bytes.MinRead
 )
 
