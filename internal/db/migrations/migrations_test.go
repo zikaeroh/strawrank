@@ -10,7 +10,6 @@ import (
 
 	"github.com/dhui/dktest"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/lib/pq"
 	"github.com/zikaeroh/strawrank/internal/db/migrations"
 	"gotest.tools/assert"
 	"gotest.tools/assert/cmp"
@@ -124,22 +123,4 @@ func tableNames(t *testing.T, db *sql.DB) []string {
 	}
 
 	return names
-}
-
-// modified from golang-migrate's postgres driver
-func dropAll(t *testing.T, db *sql.DB) {
-	t.Helper()
-
-	names := tableNames(t, db)
-
-	if len(names) == 0 {
-		return
-	}
-
-	// delete one by one ...
-	for _, name := range names {
-		query := `DROP TABLE IF EXISTS ` + pq.QuoteIdentifier(name) + ` CASCADE`
-		_, err := db.Exec(query)
-		assert.NilError(t, err)
-	}
 }
