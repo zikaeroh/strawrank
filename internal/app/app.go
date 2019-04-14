@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/csrf"
@@ -134,11 +133,19 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 	question = strings.TrimSpace(question)
 
 	if len(question) == 0 {
+		logger.Debug("empty question")
 		httpError(w, http.StatusBadRequest)
 		return
 	}
 
-	if len(choices) == 0 {
+	if len(question) > 100 {
+		logger.Debug("question too long")
+		httpError(w, http.StatusBadRequest)
+		return
+	}
+
+	if len(choices) <= 1 {
+		logger.Debug("not enough choices")
 		httpError(w, http.StatusBadRequest)
 		return
 	}
@@ -146,7 +153,14 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 	for i, choice := range choices {
 		choice = strings.TrimSpace(choice)
 
-		if len(choice) <= 1 {
+		if len(choice) == 0 {
+			logger.Debug("empty choice")
+			httpError(w, http.StatusBadRequest)
+			return
+		}
+
+		if len(choice) > 50 {
+			logger.Debug("choice too long")
 			httpError(w, http.StatusBadRequest)
 			return
 		}
@@ -163,6 +177,7 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 	case models.BallotCheckModeIPAndCookie:
 		// Valid
 	default:
+		logger.Debug("bad check mode", zap.String("check_mode", checkMode))
 		httpError(w, http.StatusBadRequest)
 		return
 	}
@@ -183,6 +198,7 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 
 	p, err := a.hid.EncodeInt64([]int64{poll.ID})
 	if err != nil {
+		logger.Error("error encoding poll ID", zap.Int64("id", poll.ID))
 		httpError(w, http.StatusInternalServerError)
 		return
 	}
@@ -225,11 +241,13 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 	var votes []int64
 
 	if err := json.Unmarshal([]byte(r.FormValue("votes")), &votes); err != nil {
+		logger.Debug("failed to unmarshal votes", zap.Error(err))
 		httpError(w, http.StatusBadRequest)
 		return
 	}
 
 	if len(votes) == 0 {
+		logger.Debug("empty votes")
 		httpError(w, http.StatusBadRequest)
 		return
 	}
@@ -259,43 +277,46 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 			userIP = null.StringFrom(ui.ip.String())
 		}
 
-		qms := make([]qm.QueryMod, 1, 2)
-		qms[0] = models.BallotWhere.PollID.EQ(pollID)
+		var qms []qm.QueryMod
 
 		switch poll.CheckMode {
 		case models.BallotCheckModeNone:
 			// Do nothing.
 		case models.BallotCheckModeCookie:
-			qms = append(qms,
+			qms = []qm.QueryMod{
+				models.BallotWhere.PollID.EQ(pollID),
 				models.BallotWhere.Cookie.EQ(cookie),
-			)
+			}
 		case models.BallotCheckModeIP:
-			models.BallotWhere.IPAddr.EQ(userIP)
-			qms = append(qms,
+			qms = []qm.QueryMod{
+				models.BallotWhere.PollID.EQ(pollID),
 				models.BallotWhere.IPAddr.EQ(userIP),
-			)
+			}
 		case models.BallotCheckModeIPAndCookie:
-			qms = append(qms,
+			qms = []qm.QueryMod{
+				models.BallotWhere.PollID.EQ(pollID),
 				qm.Expr(
 					models.BallotWhere.Cookie.EQ(cookie),
 					qm.Or2(models.BallotWhere.IPAddr.EQ(userIP)),
 				),
-			)
+			}
 		default:
 			panic("unreachable")
 		}
 
-		exists, err := models.Ballots(qms...).Exists(ctx, tx)
-		if err != nil {
-			logger.Error("error checking for existing ballot", zap.Error(err))
-			httpError(w, http.StatusInternalServerError)
-			return err
-		}
+		if len(qms) != 0 {
+			exists, err := models.Ballots(qms...).Exists(ctx, tx)
+			if err != nil {
+				logger.Error("error checking for existing ballot", zap.Error(err))
+				httpError(w, http.StatusInternalServerError)
+				return err
+			}
 
-		if exists {
-			// TODO: indicate that this is a duplicate?
-			http.Redirect(w, r, r.RequestURI+"/r", http.StatusSeeOther)
-			return nil
+			if exists {
+				// TODO: indicate that this is a duplicate?
+				http.Redirect(w, r, r.RequestURI+"/r", http.StatusSeeOther)
+				return nil
+			}
 		}
 
 		choicesLen := int64(len(poll.Choices))
@@ -330,30 +351,6 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 		httpError(w, http.StatusInternalServerError)
 		return
 	}
-}
-
-func (a *App) handleResults(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	logger := ctxlog.FromContext(ctx)
-
-	pollID := getPollIDs(r)[0]
-
-	poll, err := models.Polls(models.PollWhere.ID.EQ(pollID), qm.Load(models.PollRels.Ballots)).One(ctx, a.db)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			http.NotFound(w, r)
-			return
-		}
-
-		logger.Error("error finding poll", zap.Error(err))
-		httpError(w, http.StatusInternalServerError)
-		return
-	}
-
-	templates.WritePageTemplate(w, &templates.ResultsPage{
-		Question: poll.Question,
-		Content:  (&spew.ConfigState{Indent: "    "}).Sdump(poll.R.Ballots),
-	})
 }
 
 func (a *App) handleAbout(w http.ResponseWriter, r *http.Request) {

@@ -1,8 +1,26 @@
+{% import "strconv" %}
+
 {% code
 type ResultsPage struct {
     BasePage
     Question string
-    Content string
+    Choices []string
+
+    IRV ResultView
+    IRVRounds []ResultView
+    FPTP ResultView
+
+    id int
+}
+
+type ResultView struct {
+    Rows []ResultRow
+    ChartData []byte
+}
+
+type ResultRow struct {
+    Name string
+    Count int
 }
 %}
 
@@ -10,12 +28,110 @@ type ResultsPage struct {
 	StrawRank - Results - {%s p.Question %}
 {% endfunc %}
 
+{% func (p *ResultsPage) PageMeta() %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" integrity="sha256-Uv9BNBucvCPipKQ2NS9wYpJmi8DTOEfTA/nH2aoJALw=" crossorigin="anonymous"></script>
+{% endfunc %}
+
 {% func (p *ResultsPage) PageBody() %}
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1>{%s p.Question %}</h1>
+    </div>
+
     <div class="row">
         <div class="col">
-            <pre>
-{%s p.Content %}
-            </pre>
+            <h3 class="mb-4">"Instant-runoff" results <small class="float-right"><a href="https://en.wikipedia.org/wiki/Instant-runoff_voting" target="_blank">(About)</a></small></h3>
+            {%= p.Result(p.IRV) %}
+
+            <div class="card" style="border: 0px; border-radius: 0px">
+                <p class="card-header" style="background-color: #222">
+                    <a class="card-link" data-toggle="collapse" href="#irv-rounds">
+                        Show / hide IRV rounds
+                    </a>
+                </p>
+                <div id="irv-rounds" class="collapse">
+                    <div class="card-body">
+                        {% for i, result := range p.IRVRounds %}
+                            <h4>Round {%d i+1 %}</h4>
+                            {%= p.Result(result) %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row pt-md-5">
+        <div class="col">
+            <h3 class="mb-4">"First-past-the-post" results <small class="float-right"><a href="https://en.wikipedia.org/wiki/First-past-the-post_voting" target="_blank">(About)</a></small></h3>
+            {%= p.Result(p.FPTP) %}
+        </div>
+    </div>
+
+    <p>
+        Note: this page will not yet live update.
+    </p>
+{% endfunc %}
+
+{% func (p *ResultsPage) Result(result ResultView) %}
+    <div class="row">
+        <div class="col">
+            <table class="table table-striped table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Choice</th>
+                        <th scope="col">Votes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i, c := range result.Rows %}
+                        <tr>
+                            <th scope="row">{%d i+1 %}</th>
+                            <td>{%s c.Name %}</td>
+                            <td>{%d c.Count %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col">
+            {%= p.Chart(result.ChartData) %}
         </div>
     </div>
 {% endfunc %}
+
+{% func (p *ResultsPage) Chart(data []byte) %}
+{% code
+    id := p.nextID()
+%}    
+
+    <canvas id="{%s id %}"></canvas>
+
+    <script>
+        new Chart(document.getElementById("{%s id %}"), {
+            type: "horizontalBar",
+            data: JSON.parse("{%jz= data %}"),
+            options: {
+                legend: { display: false },
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            display: false
+                        }
+                    }]
+                }
+            }
+        })
+    </script>
+
+{% endfunc %}
+
+{% code
+func (p *ResultsPage) nextID() string {
+    p.id++
+    return "element-" + strconv.Itoa(p.id)
+}
+%}

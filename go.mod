@@ -4,7 +4,6 @@ go 1.12
 
 require (
 	github.com/Microsoft/go-winio v0.4.12 // indirect
-	github.com/davecgh/go-spew v1.1.1
 	github.com/dhui/dktest v0.3.0
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/ericlagergren/decimal v0.0.0-20190408093654-b4c50b82c335 // indirect

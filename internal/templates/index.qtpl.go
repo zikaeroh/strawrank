@@ -82,7 +82,7 @@ func (p *IndexPage) StreamPageBody(qw422016 *qt422016.Writer) {
         <div class="col-8">
             <form method="POST" autocomplete="off">
                 <div class="form-group input-group-lg mb-5">
-                    <input name="question" class="form-control" type="text" placeholder="Type your question here" required maxlength="100">
+                    <input name="question" class="form-control" type="text" placeholder="Type your question here" required maxlength="100" autofocus>
                 </div>
                 
                 <div id="choice-inputs">
@@ -157,14 +157,14 @@ func (p *IndexPage) StreamPageScripts(qw422016 *qt422016.Writer) {
         };
 
         function addAnother() {
-            $("#choice-inputs").append("`)
+            $("`)
 	{
 		qb422016 := qt422016.AcquireByteBuffer()
 		p.WriteChoice(qb422016)
 		qw422016.N().JZ(qb422016.B)
 		qt422016.ReleaseByteBuffer(qb422016)
 	}
-	qw422016.N().S(`");
+	qw422016.N().S(`").appendTo("#choice-inputs").children("input").focus();
             count++;
             updateSubmit();
         }
