@@ -109,26 +109,31 @@ func main() {
 	undoStdlog := zap.RedirectStdLog(logger)
 	defer undoStdlog()
 
-	db, err := sql.Open("postgres", args.Database)
-	if err != nil {
-		logger.Fatal("error opening database connection", zap.Error(err))
-	}
-	defer db.Close()
-
+	var db *sql.DB
 	connected := false
 
 	for i := 0; !connected && i < 10; i++ {
+		db, err := sql.Open("postgres", args.Database)
+		if err != nil {
+			logger.Error("error opening database connection", zap.Error(err))
+			time.Sleep(20 * time.Second)
+			continue
+		}
+
 		if err := db.Ping(); err != nil {
 			logger.Error("error pinging database connection", zap.Error(err))
 			time.Sleep(20 * time.Second)
-		} else {
-			connected = true
+			continue
 		}
+
+		connected = true
 	}
 
 	if !connected {
 		logger.Fatal("database could not be reached")
 	}
+
+	defer db.Close()
 
 	debugf := func(format string, v ...interface{}) {
 		logger.Sugar().Infof("migrate: "+strings.TrimSpace(format), v...)
