@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"time"
 
 	"github.com/jessevdk/go-flags"
 	"github.com/joho/godotenv"
@@ -114,12 +115,23 @@ func main() {
 	}
 	defer db.Close()
 
-	if err := db.Ping(); err != nil {
-		logger.Fatal("error pinging database connection", zap.Error(err))
+	connected := false
+
+	for i := 0; !connected && i < 10; i++ {
+		if err := db.Ping(); err != nil {
+			logger.Error("error pinging database connection", zap.Error(err))
+			time.Sleep(20 * time.Second)
+		} else {
+			connected = true
+		}
+	}
+
+	if !connected {
+		logger.Fatal("database could not be reached")
 	}
 
 	debugf := func(format string, v ...interface{}) {
-		logger.Sugar().Debugf("migrate: "+strings.TrimSpace(format), v...)
+		logger.Sugar().Infof("migrate: "+strings.TrimSpace(format), v...)
 	}
 
 	switch {
