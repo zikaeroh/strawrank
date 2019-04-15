@@ -20,7 +20,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top box-shadow">
             <div class="container">
                 <a class="navbar-brand" href="/">StrawRank</a>
-                {% if _, ok := p.(*BasePage); !ok %}
+                {% if _, ok := p.(*IndexPage); !ok %}
                 <div class="nav-item">
                     <a class="nav-link active text-white" href="/">Create a new poll</a>
                 </div>

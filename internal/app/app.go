@@ -71,6 +71,8 @@ func New(c *Config) (*App, error) {
 	r := chi.NewRouter()
 	a.r = r
 
+	r.NotFound(a.handleNotFound)
+
 	if c.Logger != nil {
 		r.Use(ctxlog.Logger(c.Logger))
 	}
@@ -91,7 +93,7 @@ func New(c *Config) (*App, error) {
 	r.Post("/", a.handleIndexPost)
 
 	r.Handle("/static/*", http.StripPrefix("/static", http.FileServer(static.FS(false))))
-	r.Handle("/favicon.ico", http.RedirectHandler("/static/favicon.ico", http.StatusFound))
+	r.Handle("/favicon.ico", http.RedirectHandler("/static/favicon.ico", http.StatusMovedPermanently))
 
 	r.Get("/about", a.handleAbout)
 
@@ -118,6 +120,14 @@ func New(c *Config) (*App, error) {
 
 func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	a.r.ServeHTTP(w, r)
+}
+
+func (a *App) handleNotFound(w http.ResponseWriter, r *http.Request) {
+	templates.WritePageTemplate(w, &templates.NotFoundPage{})
+}
+
+func (a *App) handleAbout(w http.ResponseWriter, r *http.Request) {
+	templates.WritePageTemplate(w, &templates.AboutPage{})
 }
 
 func (a *App) handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -360,10 +370,6 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 		httpError(w, http.StatusInternalServerError)
 		return
 	}
-}
-
-func (a *App) handleAbout(w http.ResponseWriter, r *http.Request) {
-	templates.WritePageTemplate(w, &templates.AboutPage{})
 }
 
 func (a *App) handleDebugDatabase(w http.ResponseWriter, r *http.Request) {

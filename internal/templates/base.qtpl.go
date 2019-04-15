@@ -50,7 +50,7 @@ func StreamPageTemplate(qw422016 *qt422016.Writer, p Page) {
             <div class="container">
                 <a class="navbar-brand" href="/">StrawRank</a>
                 `)
-	if _, ok := p.(*BasePage); !ok {
+	if _, ok := p.(*IndexPage); !ok {
 		qw422016.N().S(`
                 <div class="nav-item">
                     <a class="nav-link active text-white" href="/">Create a new poll</a>

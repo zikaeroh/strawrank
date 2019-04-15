@@ -1,0 +1,19 @@
+{% code
+type NotFoundPage struct {
+    BasePage
+}
+%}
+
+{% func (p *NotFoundPage) PageTitle() %}
+    StrawRank - 404
+{% endfunc %}
+
+{% func (p *NotFoundPage) PageBody() %}
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="mb-3">404</h1>
+
+        <p>
+            I'm not sure how you got here. Maybe you'd be interested in <a href="/">creating a poll</a>?
+        </p>
+    </div>
+{% endfunc %}
