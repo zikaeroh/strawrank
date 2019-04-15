@@ -35,6 +35,8 @@ type Config struct {
 	HIDMinLength int
 	HIDSalt      string
 
+	RealIP bool
+
 	Debug bool
 }
 
@@ -74,6 +76,11 @@ func New(c *Config) (*App, error) {
 	}
 
 	r.Use(mid.RequestID)
+
+	if c.RealIP {
+		r.Use(middleware.RealIP)
+	}
+
 	r.Use(mid.RequestLogger)
 	r.Use(mid.Recoverer)
 

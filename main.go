@@ -37,6 +37,8 @@ var args = struct {
 	MigrateReset  bool   `long:"migrate-reset" env:"SR_MIGRATE_RESET" description:"Reset the database before starting"`
 	DatabaseDebug bool   `long:"database-debug" env:"SR_DATABASE_DEBUG" description:"Enable SQLBoiler debug logging"`
 
+	RealIP bool `long:"real-ip" env:"SR_REAL_IP" description:"Enable RealIP middleware to read IP from headers"`
+
 	Debug bool `long:"debug" env:"SR_DEBUG" description:"Enables debug mode, including extra routes and logging"`
 }{
 	Addr:         ":3000",
@@ -113,7 +115,7 @@ func main() {
 	connected := false
 
 	for i := 0; !connected && i < 10; i++ {
-		db, err := sql.Open("postgres", args.Database)
+		db, err = sql.Open("postgres", args.Database)
 		if err != nil {
 			logger.Error("error opening database connection", zap.Error(err))
 			time.Sleep(20 * time.Second)
@@ -156,6 +158,7 @@ func main() {
 		CookieKey:    cookieKey,
 		HIDMinLength: args.HIDMinLength,
 		HIDSalt:      args.HIDSalt,
+		RealIP:       args.RealIP,
 		Debug:        args.Debug,
 	})
 	if err != nil {
