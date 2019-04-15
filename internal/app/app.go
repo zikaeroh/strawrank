@@ -20,6 +20,7 @@ import (
 	"github.com/zikaeroh/strawrank/internal/app/mid"
 	"github.com/zikaeroh/strawrank/internal/ctxlog"
 	"github.com/zikaeroh/strawrank/internal/db/models"
+	"github.com/zikaeroh/strawrank/internal/static"
 	"github.com/zikaeroh/strawrank/internal/templates"
 	"go.uber.org/zap"
 )
@@ -82,7 +83,8 @@ func New(c *Config) (*App, error) {
 	r.Get("/", a.handleIndex)
 	r.Post("/", a.handleIndexPost)
 
-	r.Get("/favicon.ico", http.NotFound) // TODO
+	r.Handle("/static/*", http.StripPrefix("/static", http.FileServer(static.FS(false))))
+	r.Handle("/favicon.ico", http.RedirectHandler("/static/favicon.ico", http.StatusFound))
 
 	r.Get("/about", a.handleAbout)
 
