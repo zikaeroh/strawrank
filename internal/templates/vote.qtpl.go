@@ -101,6 +101,10 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
 	qw422016.E().S(p.Question)
 	qw422016.N().S(`</h1>
 
+        <h3 class="mb-3 font-italic">
+            <a href="./r">Results</a>
+        </h3>
+
         <p>To vote, drag your choices from the left to the right.</p>
         <p>Order by preference. Not all options need to be selected.</p>
     </div>
