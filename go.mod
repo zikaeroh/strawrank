@@ -6,7 +6,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.12 // indirect
 	github.com/dhui/dktest v0.3.0
 	github.com/docker/distribution v2.7.1+incompatible // indirect
-	github.com/ericlagergren/decimal v0.0.0-20190408093654-b4c50b82c335 // indirect
+	github.com/ericlagergren/decimal v0.0.0-20190420051523-6335edbaa640 // indirect
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
 	github.com/golang-migrate/migrate/v4 v4.3.0
@@ -25,18 +25,18 @@ require (
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.3.2
-	github.com/valyala/quicktemplate v1.0.2
+	github.com/valyala/quicktemplate v1.1.0
 	github.com/volatiletech/inflect v0.0.0-20170731032912-e7201282ae8d // indirect
 	github.com/volatiletech/null v8.0.0+incompatible
 	github.com/volatiletech/sqlboiler v3.2.0+incompatible
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.9.1
-	golang.org/x/net v0.0.0-20190415214537-1da14a5a36f2 // indirect
-	golang.org/x/sys v0.0.0-20190416152802-12500544f89f // indirect
-	golang.org/x/tools v0.0.0-20190417005754-4ca4b55e2050 // indirect
-	google.golang.org/genproto v0.0.0-20190415143225-d1146b9035b9 // indirect
-	google.golang.org/grpc v1.20.0 // indirect
+	golang.org/x/net v0.0.0-20190420063019-afa5a82059c6 // indirect
+	golang.org/x/sys v0.0.0-20190422165155-953cdadca894 // indirect
+	golang.org/x/tools v0.0.0-20190422233926-fe54fb35175b // indirect
+	google.golang.org/genproto v0.0.0-20190418145605-e7d98fc518a7 // indirect
+	google.golang.org/grpc v1.20.1 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.3 // indirect
 	gotest.tools v2.2.0+incompatible
 )

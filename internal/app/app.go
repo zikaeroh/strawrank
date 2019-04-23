@@ -41,6 +41,7 @@ type Config struct {
 }
 
 type App struct {
+	c   *Config
 	r   chi.Router
 	db  *sql.DB
 	sc  *securecookie.SecureCookie
@@ -55,6 +56,7 @@ func New(c *Config) (*App, error) {
 	var err error
 
 	a := &App{
+		c:  c,
 		db: c.DB,
 		sc: securecookie.New(c.CookieKey, nil),
 	}
@@ -138,7 +140,7 @@ func (a *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		httpError(w, http.StatusBadRequest)
+		a.internalServerError(w, err)
 		return
 	}
 
@@ -211,14 +213,14 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 
 	if err := poll.Insert(ctx, a.db, boil.Infer()); err != nil {
 		logger.Error("error inserting poll", zap.Error(err))
-		httpError(w, http.StatusInternalServerError)
+		a.internalServerError(w, err)
 		return
 	}
 
 	p, err := a.hid.EncodeInt64([]int64{poll.ID})
 	if err != nil {
 		logger.Error("error encoding poll ID", zap.Int64("id", poll.ID))
-		httpError(w, http.StatusInternalServerError)
+		a.internalServerError(w, err)
 		return
 	}
 
@@ -239,7 +241,7 @@ func (a *App) handleVote(w http.ResponseWriter, r *http.Request) {
 		}
 
 		logger.Error("error finding poll", zap.Error(err))
-		httpError(w, http.StatusInternalServerError)
+		a.internalServerError(w, err)
 		return
 	}
 
@@ -282,7 +284,7 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 			}
 
 			logger.Error("error finding poll", zap.Error(err))
-			httpError(w, http.StatusInternalServerError)
+			a.internalServerError(w, err)
 			return err
 		}
 
@@ -327,7 +329,7 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 			exists, err := models.Ballots(qms...).Exists(ctx, tx)
 			if err != nil {
 				logger.Error("error checking for existing ballot", zap.Error(err))
-				httpError(w, http.StatusInternalServerError)
+				a.internalServerError(w, err)
 				return err
 			}
 
@@ -357,7 +359,7 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 
 		if err := ballot.Insert(ctx, a.db, boil.Infer()); err != nil {
 			logger.Error("error inserting ballot", zap.Error(err))
-			httpError(w, http.StatusInternalServerError)
+			a.internalServerError(w, err)
 			return err
 		}
 
@@ -367,7 +369,7 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 
 	if txErr != nil {
 		logger.Error("transaction error", zap.Error(txErr))
-		httpError(w, http.StatusInternalServerError)
+		a.internalServerError(w, txErr)
 		return
 	}
 }

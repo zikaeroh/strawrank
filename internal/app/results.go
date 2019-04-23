@@ -29,7 +29,7 @@ func (a *App) handleResults(w http.ResponseWriter, r *http.Request) {
 		}
 
 		logger.Error("error finding poll", zap.Error(err))
-		httpError(w, http.StatusInternalServerError)
+		a.internalServerError(w, err)
 		return
 	}
 
@@ -45,21 +45,21 @@ func (a *App) handleResults(w http.ResponseWriter, r *http.Request) {
 	irvView, err := resultToView(irvResult, poll.Choices)
 	if err != nil {
 		logger.Error("error creating IRV view", zap.Error(err))
-		httpError(w, http.StatusInternalServerError)
+		a.internalServerError(w, err)
 		return
 	}
 
 	irvRoundViews, err := resultsToViews(irvRounds, poll.Choices)
 	if err != nil {
 		logger.Error("error creating IRV round view", zap.Error(err))
-		httpError(w, http.StatusInternalServerError)
+		a.internalServerError(w, err)
 		return
 	}
 
 	fptpView, err := resultToView(fptpResult, poll.Choices)
 	if err != nil {
 		logger.Error("error creating FPTP view", zap.Error(err))
-		httpError(w, http.StatusInternalServerError)
+		a.internalServerError(w, err)
 		return
 	}
 
