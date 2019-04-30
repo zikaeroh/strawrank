@@ -154,20 +154,17 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 	question = strings.TrimSpace(question)
 
 	if len(question) == 0 {
-		logger.Debug("empty question")
-		httpError(w, http.StatusBadRequest)
+		a.badRequest(w, "empty question")
 		return
 	}
 
 	if len(question) > 100 {
-		logger.Debug("question too long")
-		httpError(w, http.StatusBadRequest)
+		a.badRequest(w, "question too long")
 		return
 	}
 
 	if len(choices) <= 1 {
-		logger.Debug("not enough choices")
-		httpError(w, http.StatusBadRequest)
+		a.badRequest(w, "not enough choices")
 		return
 	}
 
@@ -175,14 +172,12 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 		choice = strings.TrimSpace(choice)
 
 		if len(choice) == 0 {
-			logger.Debug("empty choice")
-			httpError(w, http.StatusBadRequest)
+			a.badRequest(w, "empty choice")
 			return
 		}
 
 		if len(choice) > 50 {
-			logger.Debug("choice too long")
-			httpError(w, http.StatusBadRequest)
+			a.badRequest(w, "choice too long")
 			return
 		}
 
@@ -198,8 +193,7 @@ func (a *App) handleIndexPost(w http.ResponseWriter, r *http.Request) {
 	case models.BallotCheckModeIPAndCookie:
 		// Valid
 	default:
-		logger.Debug("bad check mode", zap.String("check_mode", checkMode))
-		httpError(w, http.StatusBadRequest)
+		a.badRequest(w, "bad check mode "+checkMode)
 		return
 	}
 
@@ -262,14 +256,13 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 	var votes []int64
 
 	if err := json.Unmarshal([]byte(r.FormValue("votes")), &votes); err != nil {
-		logger.Debug("failed to unmarshal votes", zap.Error(err))
-		httpError(w, http.StatusBadRequest)
+		a.badRequest(w, "failed to unmarshal votes: "+err.Error())
+		// logger.Debug("failed to unmarshal votes", zap.Error(err))
 		return
 	}
 
 	if len(votes) == 0 {
-		logger.Debug("empty votes")
-		httpError(w, http.StatusBadRequest)
+		a.badRequest(w, "empty votes")
 		return
 	}
 
@@ -344,8 +337,8 @@ func (a *App) handleVotePost(w http.ResponseWriter, r *http.Request) {
 
 		for _, vote := range votes {
 			if vote < 0 || vote >= choicesLen {
-				logger.Debug("vote is out of range", zap.Int64("vote", vote), zap.Int64("len", choicesLen))
-				httpError(w, http.StatusBadRequest)
+				a.badRequest(w, fmt.Sprintf("vote is out of range: %d in [0, %d)", vote, choicesLen))
+				// logger.Debug("vote is out of range", zap.Int64("vote", vote), zap.Int64("len", choicesLen))
 				return nil
 			}
 		}
