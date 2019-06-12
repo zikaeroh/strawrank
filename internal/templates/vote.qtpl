@@ -4,6 +4,7 @@
 type VotePage struct {
     BasePage
     CSRF string
+    Path string
     Question string
     Choices []string
 }
@@ -51,7 +52,7 @@ type VotePage struct {
         <h1 class="mb-3">{%s p.Question %}</h1>
 
         <h3 class="mb-3 font-italic">
-            <a href="./r">Results</a>
+            <a href="{%s p.Path %}/r">Results</a>
         </h3>
 
         <p>To vote, drag your choices from the left to the right.</p>

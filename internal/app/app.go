@@ -241,6 +241,7 @@ func (a *App) handleVote(w http.ResponseWriter, r *http.Request) {
 
 	templates.WritePageTemplate(w, &templates.VotePage{
 		CSRF:     string(csrf.TemplateField(r)),
+		Path:     r.URL.Path,
 		Question: poll.Question,
 		Choices:  poll.Choices,
 	})

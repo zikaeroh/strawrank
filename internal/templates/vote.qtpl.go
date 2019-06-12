@@ -19,6 +19,7 @@ var (
 type VotePage struct {
 	BasePage
 	CSRF     string
+	Path     string
 	Question string
 	Choices  []string
 }
@@ -102,7 +103,9 @@ func (p *VotePage) StreamPageBody(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`</h1>
 
         <h3 class="mb-3 font-italic">
-            <a href="./r">Results</a>
+            <a href="`)
+	qw422016.E().S(p.Path)
+	qw422016.N().S(`/r">Results</a>
         </h3>
 
         <p>To vote, drag your choices from the left to the right.</p>
