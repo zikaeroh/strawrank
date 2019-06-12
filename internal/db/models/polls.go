@@ -93,12 +93,12 @@ var PollWhere = struct {
 	Choices   whereHelpertypes_StringArray
 	CheckMode whereHelperstring
 }{
-	ID:        whereHelperint64{field: `id`},
-	CreatedAt: whereHelpertime_Time{field: `created_at`},
-	UpdatedAt: whereHelpertime_Time{field: `updated_at`},
-	Question:  whereHelperstring{field: `question`},
-	Choices:   whereHelpertypes_StringArray{field: `choices`},
-	CheckMode: whereHelperstring{field: `check_mode`},
+	ID:        whereHelperint64{field: "\"polls\".\"id\""},
+	CreatedAt: whereHelpertime_Time{field: "\"polls\".\"created_at\""},
+	UpdatedAt: whereHelpertime_Time{field: "\"polls\".\"updated_at\""},
+	Question:  whereHelperstring{field: "\"polls\".\"question\""},
+	Choices:   whereHelpertypes_StringArray{field: "\"polls\".\"choices\""},
+	CheckMode: whereHelperstring{field: "\"polls\".\"check_mode\""},
 }
 
 // PollRels is where relationship names are stored.
@@ -122,7 +122,7 @@ func (*pollR) NewStruct() *pollR {
 type pollL struct{}
 
 var (
-	pollColumns               = []string{"id", "created_at", "updated_at", "question", "choices", "check_mode"}
+	pollAllColumns            = []string{"id", "created_at", "updated_at", "question", "choices", "check_mode"}
 	pollColumnsWithoutDefault = []string{"question", "choices"}
 	pollColumnsWithDefault    = []string{"id", "created_at", "updated_at", "check_mode"}
 	pollPrimaryKeyColumns     = []string{"id"}
@@ -441,7 +441,7 @@ func (o *Poll) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 
 	if !cached {
 		wl, returnColumns := columns.InsertColumnSet(
-			pollColumns,
+			pollAllColumns,
 			pollColumnsWithDefault,
 			pollColumnsWithoutDefault,
 			nzDefaults,
@@ -515,7 +515,7 @@ func (o *Poll) Update(ctx context.Context, exec boil.ContextExecutor, columns bo
 
 	if !cached {
 		wl := columns.UpdateColumnSet(
-			pollColumns,
+			pollAllColumns,
 			pollPrimaryKeyColumns,
 		)
 
@@ -666,13 +666,13 @@ func (o *Poll) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 
 	if !cached {
 		insert, ret := insertColumns.InsertColumnSet(
-			pollColumns,
+			pollAllColumns,
 			pollColumnsWithDefault,
 			pollColumnsWithoutDefault,
 			nzDefaults,
 		)
 		update := updateColumns.UpdateColumnSet(
-			pollColumns,
+			pollAllColumns,
 			pollPrimaryKeyColumns,
 		)
 
@@ -773,10 +773,6 @@ func (q pollQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) err
 
 // DeleteAll deletes all rows in the slice, using an executor.
 func (o PollSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) error {
-	if o == nil {
-		return errors.New("models: no Poll slice provided for delete all")
-	}
-
 	if len(o) == 0 {
 		return nil
 	}

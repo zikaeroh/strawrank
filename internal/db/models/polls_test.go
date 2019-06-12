@@ -585,7 +585,7 @@ func testPollsUpdate(t *testing.T) {
 	if 0 == len(pollPrimaryKeyColumns) {
 		t.Skip("Skipping table with no primary key columns")
 	}
-	if len(pollColumns) == len(pollPrimaryKeyColumns) {
+	if len(pollAllColumns) == len(pollPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
@@ -624,7 +624,7 @@ func testPollsUpdate(t *testing.T) {
 func testPollsSliceUpdateAll(t *testing.T) {
 	t.Parallel()
 
-	if len(pollColumns) == len(pollPrimaryKeyColumns) {
+	if len(pollAllColumns) == len(pollPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
@@ -657,11 +657,11 @@ func testPollsSliceUpdateAll(t *testing.T) {
 
 	// Remove Primary keys and unique columns from what we plan to update
 	var fields []string
-	if strmangle.StringSliceMatch(pollColumns, pollPrimaryKeyColumns) {
-		fields = pollColumns
+	if strmangle.StringSliceMatch(pollAllColumns, pollPrimaryKeyColumns) {
+		fields = pollAllColumns
 	} else {
 		fields = strmangle.SetComplement(
-			pollColumns,
+			pollAllColumns,
 			pollPrimaryKeyColumns,
 		)
 	}
@@ -689,7 +689,7 @@ func testPollsSliceUpdateAll(t *testing.T) {
 func testPollsUpsert(t *testing.T) {
 	t.Parallel()
 
-	if len(pollColumns) == len(pollPrimaryKeyColumns) {
+	if len(pollAllColumns) == len(pollPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 

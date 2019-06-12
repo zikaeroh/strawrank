@@ -18,8 +18,8 @@ import (
 func TestUp(t *testing.T) {
 	t.Parallel()
 
-	withDatabase(t, func(t *testing.T, db *sql.DB) {
-		assert.NilError(t, migrations.Up(db, t.Logf))
+	withDatabase(t, func(t *testing.T, db *sql.DB, connStr string) {
+		assert.NilError(t, migrations.Up(connStr, t.Logf))
 		assertTableNames(t, db, "polls", "ballots", "schema_migrations")
 	})
 }
@@ -27,9 +27,9 @@ func TestUp(t *testing.T) {
 func TestUpDown(t *testing.T) {
 	t.Parallel()
 
-	withDatabase(t, func(t *testing.T, db *sql.DB) {
-		assert.NilError(t, migrations.Up(db, t.Logf))
-		assert.NilError(t, migrations.Down(db, t.Logf))
+	withDatabase(t, func(t *testing.T, db *sql.DB, connStr string) {
+		assert.NilError(t, migrations.Up(connStr, t.Logf))
+		assert.NilError(t, migrations.Down(connStr, t.Logf))
 		assertTableNames(t, db, "schema_migrations")
 	})
 }
@@ -37,15 +37,15 @@ func TestUpDown(t *testing.T) {
 func TestReset(t *testing.T) {
 	t.Parallel()
 
-	withDatabase(t, func(t *testing.T, db *sql.DB) {
-		assert.NilError(t, migrations.Up(db, t.Logf))
+	withDatabase(t, func(t *testing.T, db *sql.DB, connStr string) {
+		assert.NilError(t, migrations.Up(connStr, t.Logf))
 		assertTableNames(t, db, "polls", "ballots", "schema_migrations")
-		assert.NilError(t, migrations.Reset(db, t.Logf))
+		assert.NilError(t, migrations.Reset(connStr, t.Logf))
 		assertTableNames(t, db, "polls", "ballots", "schema_migrations")
 	})
 }
 
-func withDatabase(t *testing.T, fn func(t *testing.T, db *sql.DB)) {
+func withDatabase(t *testing.T, fn func(t *testing.T, db *sql.DB, connStr string)) {
 	if testing.Short() {
 		t.Skip("requires starting a docker container")
 	}
@@ -61,14 +61,15 @@ func withDatabase(t *testing.T, fn func(t *testing.T, db *sql.DB)) {
 			ip, port, err := c.FirstPort()
 			assert.NilError(t, err)
 
-			db, err := sql.Open("postgres", connStr(ip, port))
+			cs := connStr(ip, port)
+			db, err := sql.Open("postgres", cs)
 			assert.NilError(t, err)
 			defer db.Close()
 
 			assert.NilError(t, db.Ping())
 
 			assertTableNames(t, db)
-			fn(t, db)
+			fn(t, db, cs)
 		})
 }
 

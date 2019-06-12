@@ -142,13 +142,13 @@ var BallotWhere = struct {
 	IPAddr    whereHelpernull_String
 	Votes     whereHelpertypes_Int64Array
 }{
-	ID:        whereHelperint64{field: `id`},
-	CreatedAt: whereHelpertime_Time{field: `created_at`},
-	UpdatedAt: whereHelpertime_Time{field: `updated_at`},
-	PollID:    whereHelperint64{field: `poll_id`},
-	Cookie:    whereHelpernull_String{field: `cookie`},
-	IPAddr:    whereHelpernull_String{field: `ip_addr`},
-	Votes:     whereHelpertypes_Int64Array{field: `votes`},
+	ID:        whereHelperint64{field: "\"ballots\".\"id\""},
+	CreatedAt: whereHelpertime_Time{field: "\"ballots\".\"created_at\""},
+	UpdatedAt: whereHelpertime_Time{field: "\"ballots\".\"updated_at\""},
+	PollID:    whereHelperint64{field: "\"ballots\".\"poll_id\""},
+	Cookie:    whereHelpernull_String{field: "\"ballots\".\"cookie\""},
+	IPAddr:    whereHelpernull_String{field: "\"ballots\".\"ip_addr\""},
+	Votes:     whereHelpertypes_Int64Array{field: "\"ballots\".\"votes\""},
 }
 
 // BallotRels is where relationship names are stored.
@@ -172,7 +172,7 @@ func (*ballotR) NewStruct() *ballotR {
 type ballotL struct{}
 
 var (
-	ballotColumns               = []string{"id", "created_at", "updated_at", "poll_id", "cookie", "ip_addr", "votes"}
+	ballotAllColumns            = []string{"id", "created_at", "updated_at", "poll_id", "cookie", "ip_addr", "votes"}
 	ballotColumnsWithoutDefault = []string{"poll_id", "cookie", "ip_addr", "votes"}
 	ballotColumnsWithDefault    = []string{"id", "created_at", "updated_at"}
 	ballotPrimaryKeyColumns     = []string{"id"}
@@ -483,7 +483,7 @@ func (o *Ballot) Insert(ctx context.Context, exec boil.ContextExecutor, columns 
 
 	if !cached {
 		wl, returnColumns := columns.InsertColumnSet(
-			ballotColumns,
+			ballotAllColumns,
 			ballotColumnsWithDefault,
 			ballotColumnsWithoutDefault,
 			nzDefaults,
@@ -557,7 +557,7 @@ func (o *Ballot) Update(ctx context.Context, exec boil.ContextExecutor, columns 
 
 	if !cached {
 		wl := columns.UpdateColumnSet(
-			ballotColumns,
+			ballotAllColumns,
 			ballotPrimaryKeyColumns,
 		)
 
@@ -708,13 +708,13 @@ func (o *Ballot) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOn
 
 	if !cached {
 		insert, ret := insertColumns.InsertColumnSet(
-			ballotColumns,
+			ballotAllColumns,
 			ballotColumnsWithDefault,
 			ballotColumnsWithoutDefault,
 			nzDefaults,
 		)
 		update := updateColumns.UpdateColumnSet(
-			ballotColumns,
+			ballotAllColumns,
 			ballotPrimaryKeyColumns,
 		)
 
@@ -815,10 +815,6 @@ func (q ballotQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) e
 
 // DeleteAll deletes all rows in the slice, using an executor.
 func (o BallotSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) error {
-	if o == nil {
-		return errors.New("models: no Ballot slice provided for delete all")
-	}
-
 	if len(o) == 0 {
 		return nil
 	}

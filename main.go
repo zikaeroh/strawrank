@@ -143,9 +143,9 @@ func main() {
 
 	switch {
 	case args.MigrateUp:
-		err = migrations.Up(db, debugf)
+		err = migrations.Up(args.Database, debugf)
 	case args.MigrateReset:
-		err = migrations.Reset(db, debugf)
+		err = migrations.Reset(args.Database, debugf)
 	}
 
 	if err != nil {

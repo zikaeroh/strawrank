@@ -540,7 +540,7 @@ func testBallotsUpdate(t *testing.T) {
 	if 0 == len(ballotPrimaryKeyColumns) {
 		t.Skip("Skipping table with no primary key columns")
 	}
-	if len(ballotColumns) == len(ballotPrimaryKeyColumns) {
+	if len(ballotAllColumns) == len(ballotPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
@@ -579,7 +579,7 @@ func testBallotsUpdate(t *testing.T) {
 func testBallotsSliceUpdateAll(t *testing.T) {
 	t.Parallel()
 
-	if len(ballotColumns) == len(ballotPrimaryKeyColumns) {
+	if len(ballotAllColumns) == len(ballotPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
@@ -612,11 +612,11 @@ func testBallotsSliceUpdateAll(t *testing.T) {
 
 	// Remove Primary keys and unique columns from what we plan to update
 	var fields []string
-	if strmangle.StringSliceMatch(ballotColumns, ballotPrimaryKeyColumns) {
-		fields = ballotColumns
+	if strmangle.StringSliceMatch(ballotAllColumns, ballotPrimaryKeyColumns) {
+		fields = ballotAllColumns
 	} else {
 		fields = strmangle.SetComplement(
-			ballotColumns,
+			ballotAllColumns,
 			ballotPrimaryKeyColumns,
 		)
 	}
@@ -644,7 +644,7 @@ func testBallotsSliceUpdateAll(t *testing.T) {
 func testBallotsUpsert(t *testing.T) {
 	t.Parallel()
 
-	if len(ballotColumns) == len(ballotPrimaryKeyColumns) {
+	if len(ballotAllColumns) == len(ballotPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
