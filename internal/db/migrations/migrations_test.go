@@ -11,8 +11,8 @@ import (
 	"github.com/dhui/dktest"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/zikaeroh/strawrank/internal/db/migrations"
-	"gotest.tools/assert"
-	"gotest.tools/assert/cmp"
+	"gotest.tools/v3/assert"
+	"gotest.tools/v3/assert/cmp"
 )
 
 func TestUp(t *testing.T) {
