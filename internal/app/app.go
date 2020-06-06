@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/http/httputil"
 	"strings"
 
 	"github.com/go-chi/chi"
@@ -111,11 +112,20 @@ func New(c *Config) (*App, error) {
 		r.With(middleware.NoCache).Get("/r", a.handleResults)
 	})
 
-	if c.Debug {
-		r.Route("/debug", func(r chi.Router) {
-			r.Get("/database", a.handleDebugDatabase)
+	r.Route("/debug", func(r chi.Router) {
+		r.Get("/request", func(w http.ResponseWriter, r *http.Request) {
+			b, err := httputil.DumpRequest(r, true)
+			if err != nil {
+				a.badRequest(w, err.Error())
+				return
+			}
+			_, _ = w.Write(b)
 		})
-	}
+
+		if c.Debug {
+			r.Get("/database", a.handleDebugDatabase)
+		}
+	})
 
 	return a, nil
 }
