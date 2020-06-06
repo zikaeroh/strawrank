@@ -15,7 +15,7 @@ import (
 
 	"github.com/jessevdk/go-flags"
 	"github.com/joho/godotenv"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/zikaeroh/strawrank/internal/app"
 	"github.com/zikaeroh/strawrank/internal/db/migrations"
 	"go.uber.org/zap"

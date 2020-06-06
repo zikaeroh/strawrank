@@ -40,7 +40,7 @@ func (a *App) pollIDCheck(paramName string) func(http.Handler) http.Handler {
 			}
 
 			ctx = context.WithValue(ctx, pollIDKey{}, ids)
-			ctx, logger = ctxlog.FromContextWith(ctx, zap.Int64s("pollID", ids))
+			ctx, _ = ctxlog.FromContextWith(ctx, zap.Int64s("pollID", ids))
 
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)

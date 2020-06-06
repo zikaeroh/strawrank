@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/zikaeroh/strawrank/internal/ctxlog"
 	"github.com/zikaeroh/strawrank/internal/db/models"
 	"github.com/zikaeroh/strawrank/internal/polling"

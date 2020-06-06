@@ -22,4 +22,4 @@ echo "Migrating database up"
 ./scripts/migrate -database 'postgres://postgres:mysecretpassword@localhost:5432/postgres?sslmode=disable' -path internal/db/migrations up
 
 echo "Generating models"
-gobin -m -run github.com/volatiletech/sqlboiler ./scripts/sqlboiler-psql --wipe --no-hooks --no-rows-affected # --no-tests
+gobin -m -run github.com/volatiletech/sqlboiler/v4 ./scripts/sqlboiler-psql --wipe --no-hooks --no-rows-affected --no-tests

@@ -123,5 +123,7 @@ func tableNames(t *testing.T, db *sql.DB) []string {
 		}
 	}
 
+	assert.NilError(t, rows.Err())
+
 	return names
 }
