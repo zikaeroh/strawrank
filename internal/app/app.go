@@ -83,6 +83,13 @@ func New(c *Config) (*App, error) {
 	r.Use(mid.RequestID)
 
 	if c.RealIP {
+		r.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// Ensure the RealIP middleware uses X-Forwarded-For.
+				r.Header.Del("X-Real-Ip")
+				next.ServeHTTP(w, r)
+			})
+		})
 		r.Use(middleware.RealIP)
 	}
 
@@ -120,6 +127,7 @@ func New(c *Config) (*App, error) {
 				return
 			}
 			_, _ = w.Write(b)
+			fmt.Fprintln(w, "RemoteAddr:", r.RemoteAddr)
 		})
 
 		if c.Debug {
